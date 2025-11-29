@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 09:40:26
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 09:40:34
+ * @LastEditTime: 2025-11-29 13:53:00
  * @FilePath: \ginManager\config\config.go
  * @Description: 配置文件读取
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -19,6 +19,7 @@ type Config struct {
 	Server Server `mapstructure:"server"`
 	DB     DB     `mapstructure:"database"`
 	Log    Log    `mapstructure:"log"`
+	JWT    JWT    `mapstructure:"jwt"`
 }
 
 type Server struct {
@@ -39,6 +40,11 @@ type Log struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 	MaxAge     int    `mapstructure:"max_age"`
 	Compress   bool   `mapstructure:"compress"`
+}
+
+type JWT struct {
+	Secret string `mapstructure:"secret"`
+	Expire int    `mapstructure:"expire"`
 }
 
 var C = new(Config)

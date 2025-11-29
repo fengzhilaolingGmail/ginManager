@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 09:04:52
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 10:46:18
+ * @LastEditTime: 2025-11-29 13:11:15
  * @FilePath: \ginManager\models\migrate.go
  * @Description: db 连接与自动迁移
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -48,6 +48,9 @@ func Init() *gorm.DB {
 		logger.L.Fatal("auto migrate fail", zap.Error(err))
 	}
 	logger.L.Info("db connected and migrated")
+	// 首次初始化数据
+	InitFirstRun(db)
+	InitMenuPerm(db)
 	return db
 }
 

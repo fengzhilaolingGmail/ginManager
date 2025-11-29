@@ -3,6 +3,10 @@ server:
   port: 8080
   mode: debug          # debug | release
 
+jwt:
+  secret: demo-secret-change-me
+  expire: 7200   # 秒 = 2h
+
 # 数据库（支持 mysql / postgres 切换）
 database:
   driver: postgres     # mysql | postgres

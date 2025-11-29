@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 10:37:56
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 10:45:35
+ * @LastEditTime: 2025-11-29 14:12:57
  * @FilePath: \ginManager\router\router.go
  * @Description: 路由配置
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -10,6 +10,7 @@
 package router
 
 import (
+	"ginManager/handler"
 	"ginManager/middleware"
 	"ginManager/router/api"
 
@@ -27,6 +28,7 @@ func NewRouter(zapLog *zap.Logger, db *gorm.DB) *gin.Engine {
 
 	// 2. 业务路由分组
 	root := r.Group("/api") // 统一加 /api 前缀
+	handler.RegisterRoutes(root)
 	{
 		api.RegisterBaseRoutes(root) // /api/ping
 

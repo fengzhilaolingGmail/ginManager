@@ -15,6 +15,7 @@ import (
 	"ginManager/config"
 	"ginManager/logger"
 	"ginManager/models"
+	"ginManager/repository"
 	"ginManager/router"
 
 	"go.uber.org/zap"
@@ -27,6 +28,8 @@ func main() {
 	logger.Init()
 	// 3. 初始化数据库
 	db := models.Init()
+	// 注入 repo 层 DB 对象
+	repository.SetDB(db)
 
 	// 4. 路由
 	r := router.NewRouter(logger.L, db)
