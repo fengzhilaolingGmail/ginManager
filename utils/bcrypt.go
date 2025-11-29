@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 11:06:06
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 11:11:44
+ * @LastEditTime: 2025-11-29 17:31:05
  * @FilePath: \ginManager\utils\bcrypt.go
  * @Description: bcrypt 密码加密工具
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -22,7 +22,7 @@ const (
 	lower   = "abcdefghijklmnopqrstuvwxyz"
 	upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	digits  = "0123456789"
-	special = "!@#$%^&*()-_=+[]{}<>?"
+	special = "!@#$^&*()-_=+[]{}<>?"
 	all     = lower + upper + digits + special
 )
 
@@ -35,6 +35,7 @@ func HashPassword(password string) (string, error) {
 // 校验密码（登录时）
 func CheckPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	fmt.Println(err)
 	return err == nil
 }
 

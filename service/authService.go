@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:46:25
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 13:52:23
+ * @LastEditTime: 2025-11-29 17:40:22
  * @FilePath: \ginManager\service\authService.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -37,10 +37,10 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginReq) (token strin
 	if err != nil {
 		return "", nil, err
 	}
+
 	if u == nil || u.Status == 0 {
 		return "", nil, errors.New("账号或密码错误")
 	}
-
 	if !utils.CheckPassword(req.Password, u.PasswordHash) {
 		return "", nil, errors.New("账号或密码错误")
 	}

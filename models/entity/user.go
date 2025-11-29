@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 09:07:54
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 09:29:02
+ * @LastEditTime: 2025-11-29 17:13:19
  * @FilePath: \ginManager\models\entity\user.go
  * @Description: 用户表
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -10,7 +10,11 @@
 
 package entity
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // ----------------- 用户 -----------------
 type User struct {
@@ -23,4 +27,5 @@ type User struct {
 	Status       uint8   `gorm:"not null;default:1;comment:1启用 0禁用"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `gorm:"index"` //软删除
 }

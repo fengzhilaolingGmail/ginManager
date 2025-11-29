@@ -10,7 +10,11 @@
 
 package entity
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // ----------------- 菜单 -----------------
 type Menu struct {
@@ -25,4 +29,5 @@ type Menu struct {
 	Status    uint8   `gorm:"not null;default:1;comment:1启用 0禁用"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"` //软删除
 }

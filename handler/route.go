@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:43:26
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 13:43:33
+ * @LastEditTime: 2025-11-29 15:07:07
  * @FilePath: \ginManager\handler\route.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -10,6 +10,8 @@
 package handler
 
 import (
+	"ginManager/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +29,12 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	r.POST("/auth/login", auth.Login)
 
 	// 后续
-	// user := NewUserHandler()
-	// r.GET("/user/info", user.Info)
+	user := NewUserHandler()
+	r.GET("/user/info", middleware.NewAuthMiddleware(""), user.Info)
+	r.POST("/user/list", middleware.NewAuthMiddleware("User:view"), user.Page)
+	r.POST("/user/add", middleware.NewAuthMiddleware("User:add"), user.Create)
+	r.PUT("/user/edit/:id", middleware.NewAuthMiddleware("User:edit"), user.Update)
+	r.PUT("/user/status/:id/:status", middleware.NewAuthMiddleware("User:edit"), user.UpdateStatus)
+	r.PUT("/user/pwd", middleware.NewAuthMiddleware(""), user.UpdatePassword) // 自己改密码
+	r.DELETE("/user/del/:id", middleware.NewAuthMiddleware("User:del"), user.Delete)
 }
