@@ -1,0 +1,21 @@
+# 服务配置
+server:
+  port: 8080
+  mode: debug          # debug | release
+
+# 数据库（支持 mysql / postgres 切换）
+database:
+  driver: postgres     # mysql | postgres
+  dsn: "host=192.168.142.128 user=ginpgsql password=n%aH*NbA9VgQ dbname=ginManager port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+  # mysql示例：
+  # dsn: "user:pass@tcp(127.0.0.1:3306)/admin_db?charset=utf8mb4&parseTime=True&loc=Local"
+
+# 日志
+log:
+  level: info          # debug | info | warn | error
+  path: ./logs         # 文件夹会自动创建
+  filename: app.log
+  max_size: 50         # MB
+  max_backups: 7
+  max_age: 30          # days
+  compress: true
