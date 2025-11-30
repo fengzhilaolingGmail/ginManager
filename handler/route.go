@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:43:26
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 15:07:07
+ * @LastEditTime: 2025-11-30 09:49:34
  * @FilePath: \ginManager\handler\route.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -37,4 +37,20 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	r.PUT("/user/status/:id/:status", middleware.NewAuthMiddleware("User:edit"), user.UpdateStatus)
 	r.PUT("/user/pwd", middleware.NewAuthMiddleware(""), user.UpdatePassword) // 自己改密码
 	r.DELETE("/user/del/:id", middleware.NewAuthMiddleware("User:del"), user.Delete)
+
+	// 用户组
+	group := NewGroupHandler()
+	r.GET("/group/list", middleware.NewAuthMiddleware("Group:view"), group.Page)
+	r.POST("/group/add", middleware.NewAuthMiddleware("Group:add"), group.Create)
+	r.PUT("/group/edit/:id", middleware.NewAuthMiddleware("Group:edit"), group.Update)
+	r.DELETE("/group/del/:id", middleware.NewAuthMiddleware("Group:del"), group.Delete)
+	r.GET("/group/:id", middleware.NewAuthMiddleware("Group:view"), group.Get)
+
+	// 菜单
+	menu := NewMenuHandler()
+	r.GET("/menu/tree", menu.Tree) // 所有人可见
+	r.POST("/menu/add", middleware.NewAuthMiddleware("Menu:add"), menu.Create)
+	r.PUT("/menu/edit/:id", middleware.NewAuthMiddleware("Menu:edit"), menu.Update)
+	r.DELETE("/menu/del/:id", middleware.NewAuthMiddleware("Menu:del"), menu.Delete)
+	r.GET("/menu/:id", middleware.NewAuthMiddleware("Menu:view"), menu.Get)
 }

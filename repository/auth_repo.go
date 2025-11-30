@@ -2,6 +2,15 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:38:29
  * @LastEditors: fengzhilaoling
+ * @LastEditTime: 2025-11-30 09:44:42
+ * @FilePath: \ginManager\repository\authRepo.go
+ * @Description: 文件解释
+ * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
+ */
+/*
+ * @Author: fengzhilaoling fengzhilaoling@gmail.com
+ * @Date: 2025-11-29 13:38:29
+ * @LastEditors: fengzhilaoling
  * @LastEditTime: 2025-11-29 15:37:59
  * @FilePath: \ginManager\repository\authRepo.go
  * @Description: 文件解释
