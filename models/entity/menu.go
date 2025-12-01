@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 09:09:47
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 09:27:53
+ * @LastEditTime: 2025-11-30 10:01:41
  * @FilePath: \ginManager\models\entity\menu.go
  * @Description: 菜单表
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -27,6 +27,7 @@ type Menu struct {
 	Icon      *string `gorm:"size:50;comment:图标"`
 	Sort      int     `gorm:"not null;default:0;comment:排序"`
 	Status    uint8   `gorm:"not null;default:1;comment:1启用 0禁用"`
+	Children  []Menu  `gorm:"-" json:"children,omitempty"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"` //软删除
