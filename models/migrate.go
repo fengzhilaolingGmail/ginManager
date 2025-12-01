@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 09:04:52
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 13:11:15
+ * @LastEditTime: 2025-12-01 12:11:07
  * @FilePath: \ginManager\models\migrate.go
  * @Description: db 连接与自动迁移
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -38,7 +38,7 @@ func Init() *gorm.DB {
 
 	var err error
 	db, err := gorm.Open(dia, &gorm.Config{
-		Logger: logger.NewGormLogger(logger.L).LogMode(gromLogger.Warn), // 把 zap 接入 gorm
+		Logger: logger.NewGormLogger(logger.L).LogMode(gromLogger.Info), // 把 zap 接入 gorm
 	})
 	if err != nil {
 		logger.L.Fatal("connect db fail", zap.Error(err))

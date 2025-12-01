@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:52:25
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 15:19:40
+ * @LastEditTime: 2025-12-01 11:25:24
  * @FilePath: \ginManager\utils\jwt.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -18,15 +18,17 @@ import (
 )
 
 type Claims struct {
-	UserID uint64 `json:"user_id"`
+	UserID   uint64 `json:"user_id"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 生成 JWT
-func GenerateToken(userID uint64) (string, error) {
+func GenerateToken(userID uint64, userName string) (string, error) {
 	cfg := config.C.JWT
 	claims := Claims{
-		UserID: userID,
+		UserID:   userID,
+		Username: userName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(cfg.Expire) * time.Second)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:43:26
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 09:27:06
+ * @LastEditTime: 2025-12-01 11:10:41
  * @FilePath: \ginManager\handler\route.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -65,4 +65,8 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	// 权限
 	perm := NewPermissionHandler()
 	r.GET("/perm/list", middleware.NewAuthMiddleware("Perm:view"), perm.List)
+
+	userLog := NewUserLogHandler()
+	r.GET("/log/user/page", middleware.NewAuthMiddleware("Log:view"), userLog.Page)
+	r.GET("/log/user/export", middleware.NewAuthMiddleware("Log:export"), userLog.Export)
 }

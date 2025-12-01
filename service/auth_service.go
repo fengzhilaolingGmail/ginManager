@@ -44,7 +44,7 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginReq) (token strin
 	if !utils.CheckPassword(req.Password, u.PasswordHash) {
 		return "", nil, errors.New("账号或密码错误")
 	}
-	token, err = utils.GenerateToken(u.ID)
+	token, err = utils.GenerateToken(u.ID, u.Username)
 	return token, u, err
 }
 
