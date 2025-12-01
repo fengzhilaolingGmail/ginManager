@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:43:26
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-30 09:49:34
+ * @LastEditTime: 2025-12-01 09:27:06
  * @FilePath: \ginManager\handler\route.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -53,4 +53,16 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	r.PUT("/menu/edit/:id", middleware.NewAuthMiddleware("Menu:edit"), menu.Update)
 	r.DELETE("/menu/del/:id", middleware.NewAuthMiddleware("Menu:del"), menu.Delete)
 	r.GET("/menu/:id", middleware.NewAuthMiddleware("Menu:view"), menu.Get)
+
+	// 角色
+	role := NewRoleHandler()
+	r.GET("/role/list", middleware.NewAuthMiddleware("Role:view"), role.Page)
+	r.POST("/role/add", middleware.NewAuthMiddleware("Role:add"), role.Create)
+	r.PUT("/role/edit/:id", middleware.NewAuthMiddleware("Role:edit"), role.Update)
+	r.DELETE("/role/del/:id", middleware.NewAuthMiddleware("Role:del"), role.Delete)
+	r.GET("/role/:id", middleware.NewAuthMiddleware("Role:view"), role.Get)
+
+	// 权限
+	perm := NewPermissionHandler()
+	r.GET("/perm/list", middleware.NewAuthMiddleware("Perm:view"), perm.List)
 }
