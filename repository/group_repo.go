@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-30 09:43:36
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-30 09:55:42
+ * @LastEditTime: 2025-12-01 10:40:49
  * @FilePath: \ginManager\repository\group_repo.go
  * @Description: 用户组仓库
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -48,8 +48,15 @@ func (r *GroupRepo) Create(ctx context.Context, g *entity.UserGroup) error {
 }
 
 // Update 更新
-func (r *GroupRepo) Update(ctx context.Context, g *entity.UserGroup) error {
-	return DB.WithContext(ctx).Model(g).Updates(g).Error
+func (r *GroupRepo) Update(ctx context.Context, g *entity.UserGroup, id uint64) error {
+	db := DB.WithContext(ctx).
+		Model(&entity.UserGroup{}).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(g)
+	if db.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return db.Error
 }
 
 // Delete 删除（同步删除关联表）

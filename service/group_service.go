@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-30 09:46:08
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-30 09:46:42
+ * @LastEditTime: 2025-12-01 10:41:02
  * @FilePath: \ginManager\service\group_service.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -65,7 +65,7 @@ func (s *GroupService) Update(ctx context.Context, id uint64, req *dto.GroupAddR
 		Sort:      req.Sort,
 		Status:    req.Status,
 	}
-	return s.repo.Update(ctx, &g)
+	return s.repo.Update(ctx, &g, id)
 }
 
 // Delete 删除
