@@ -1,3 +1,12 @@
+/*
+ * @Author: fengzhilaoling fengzhilaoling@gmail.com
+ * @Date: 2025-11-30 09:44:24
+ * @LastEditors: fengzhilaoling
+ * @LastEditTime: 2025-12-01 10:37:18
+ * @FilePath: \ginManager\repository\menu_repo.go
+ * @Description: 文件解释
+ * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
+ */
 // repository/menu_repo.go
 package repository
 
@@ -32,8 +41,15 @@ func (r *MenuRepo) Create(ctx context.Context, m *entity.Menu) error {
 }
 
 // Update 更新
-func (r *MenuRepo) Update(ctx context.Context, m *entity.Menu) error {
-	return DB.WithContext(ctx).Model(m).Updates(m).Error
+func (r *MenuRepo) Update(ctx context.Context, m *entity.Menu, id uint64) error {
+	db := DB.WithContext(ctx).
+		Model(&entity.Menu{}).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(m)
+	if db.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return db.Error
 }
 
 // Delete 删除（含子节点）

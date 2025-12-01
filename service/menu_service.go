@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-30 09:46:55
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-30 10:03:00
+ * @LastEditTime: 2025-12-01 10:38:13
  * @FilePath: \ginManager\service\menu_service.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -83,7 +83,7 @@ func (s *MenuService) Update(ctx context.Context, id uint64, req *dto.MenuAddReq
 		Sort:      req.Sort,
 		Status:    req.Status,
 	}
-	return s.repo.Update(ctx, &m)
+	return s.repo.Update(ctx, &m, id)
 }
 
 // Delete 删除
