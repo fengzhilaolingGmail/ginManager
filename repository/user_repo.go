@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:37:48
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-30 09:44:50
- * @FilePath: \ginManager\repository\userRepo.go
+ * @LastEditTime: 2025-12-01 10:46:43
+ * @FilePath: \ginManager\repository\user_repo.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
@@ -63,18 +63,39 @@ func (r *UserRepo) Create(ctx context.Context, u *entity.User) error {
 }
 
 // Update 更新非零字段
-func (r *UserRepo) Update(ctx context.Context, u *entity.User) error {
-	return DB.WithContext(ctx).Model(u).Updates(u).Error
+func (r *UserRepo) Update(ctx context.Context, u *entity.User, id uint64) error {
+	db := DB.WithContext(ctx).
+		Model(&entity.User{}).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(u)
+	if db.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return db.Error
 }
 
 // UpdateStatus 单独切换状态
 func (r *UserRepo) UpdateStatus(ctx context.Context, id uint64, status uint8) error {
-	return DB.WithContext(ctx).Model(&entity.User{}).Where("id = ?", id).Update("status", status).Error
+	db := DB.WithContext(ctx).
+		Model(&entity.User{}).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Update("status", status)
+	if db.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return db.Error
 }
 
 // UpdatePassword 单独改密码
 func (r *UserRepo) UpdatePassword(ctx context.Context, id uint64, newHash string) error {
-	return DB.WithContext(ctx).Model(&entity.User{}).Where("id = ?", id).Update("password_hash", newHash).Error
+	db := DB.WithContext(ctx).
+		Model(&entity.User{}).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Update("password_hash", newHash)
+	if db.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return db.Error
 }
 
 // Delete 物理删除（可选逻辑删）

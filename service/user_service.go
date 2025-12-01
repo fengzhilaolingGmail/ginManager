@@ -68,7 +68,7 @@ func (s *UserService) Update(ctx context.Context, id uint64, req *dto.UserUpdate
 		Phone:    req.Phone,
 		Status:   status,
 	}
-	return s.repo.Update(ctx, &u)
+	return s.repo.Update(ctx, &u, id)
 }
 
 // UpdateStatus 开关账号
