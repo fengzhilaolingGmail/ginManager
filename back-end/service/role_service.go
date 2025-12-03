@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-12-01 09:22:22
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 09:34:40
- * @FilePath: \ginManager\service\role_service.go
+ * @LastEditTime: 2025-12-01 15:45:45
+ * @FilePath: \back-end\service\role_service.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */

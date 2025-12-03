@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-12-01 09:25:38
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 09:25:53
- * @FilePath: \ginManager\handler\permission_handler.go
+ * @LastEditTime: 2025-12-01 15:43:22
+ * @FilePath: \back-end\handler\permission_handler.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */

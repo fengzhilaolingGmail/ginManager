@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:43:26
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 11:10:41
- * @FilePath: \ginManager\handler\route.go
+ * @LastEditTime: 2025-12-01 19:44:35
+ * @FilePath: \back-end\handler\route.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
@@ -31,7 +31,7 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	// 后续
 	user := NewUserHandler()
 	r.GET("/user/info", middleware.NewAuthMiddleware(""), user.Info)
-	r.POST("/user/list", middleware.NewAuthMiddleware("User:view"), user.Page)
+	r.GET("/user/list", middleware.NewAuthMiddleware("User:view"), user.Page)
 	r.POST("/user/add", middleware.NewAuthMiddleware("User:add"), user.Create)
 	r.PUT("/user/edit/:id", middleware.NewAuthMiddleware("User:edit"), user.Update)
 	r.PUT("/user/status/:id/:status", middleware.NewAuthMiddleware("User:edit"), user.UpdateStatus)
@@ -48,7 +48,8 @@ func RegisterRoutes(r *gin.RouterGroup) {
 
 	// 菜单
 	menu := NewMenuHandler()
-	r.GET("/menu/tree", menu.Tree) // 所有人可见
+	r.GET("/menu/side", menu.Side)                                            // 侧边栏 所有人可见
+	r.GET("/menu/tree", middleware.NewAuthMiddleware("Menu:view"), menu.Tree) // 菜单树
 	r.POST("/menu/add", middleware.NewAuthMiddleware("Menu:add"), menu.Create)
 	r.PUT("/menu/edit/:id", middleware.NewAuthMiddleware("Menu:edit"), menu.Update)
 	r.DELETE("/menu/del/:id", middleware.NewAuthMiddleware("Menu:del"), menu.Delete)

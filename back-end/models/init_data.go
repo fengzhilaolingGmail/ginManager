@@ -131,22 +131,22 @@ func InitFirstRun(db *gorm.DB) {
 func InitMenuPerm(db *gorm.DB) {
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		// 1. 顶级菜单
-		sysMgr := entity.Menu{ParentID: 0, Title: "系统管理", Name: stringPtr("System"), Path: stringPtr("/system"), Component: stringPtr("Layout"), Sort: 1, Status: 1}
+		sysMgr := entity.Menu{ParentID: 0, Title: "系统管理", Name: stringPtr("System"), Path: stringPtr("/system"), Component: stringPtr("目录"), Sort: 1, Status: 1}
 		if err := tx.FirstOrCreate(&sysMgr, entity.Menu{Path: stringPtr("/system")}).Error; err != nil {
 			return err
 		}
-		logMgr := entity.Menu{ParentID: 0, Title: "系统日志", Name: stringPtr("Log"), Path: stringPtr("/log"), Component: stringPtr("Layout"), Sort: 2, Status: 1}
+		logMgr := entity.Menu{ParentID: 0, Title: "系统日志", Name: stringPtr("Log"), Path: stringPtr("/log"), Component: stringPtr("目录"), Sort: 2, Status: 1}
 		if err := tx.FirstOrCreate(&logMgr, entity.Menu{Path: stringPtr("/log")}).Error; err != nil {
 			return err
 		}
 
 		// 2. 子菜单
 		sub := []entity.Menu{
-			{ParentID: sysMgr.ID, Title: "用户管理", Name: stringPtr("User"), Path: stringPtr("/system/user"), Component: stringPtr("system/user/index"), Sort: 11, Status: 1},
-			{ParentID: sysMgr.ID, Title: "用户组管理", Name: stringPtr("UserGroup"), Path: stringPtr("/system/group"), Component: stringPtr("system/group/index"), Sort: 12, Status: 1},
-			{ParentID: sysMgr.ID, Title: "菜单管理", Name: stringPtr("Menu"), Path: stringPtr("/system/menu"), Component: stringPtr("system/menu/index"), Sort: 13, Status: 1},
-			{ParentID: sysMgr.ID, Title: "权限管理", Name: stringPtr("Perm"), Path: stringPtr("/system/perm"), Component: stringPtr("system/perm/index"), Sort: 14, Status: 1},
-			{ParentID: logMgr.ID, Title: "操作日志", Name: stringPtr("OperLog"), Path: stringPtr("/log/oper"), Component: stringPtr("log/oper/index"), Sort: 21, Status: 1},
+			{ParentID: sysMgr.ID, Title: "用户管理", Name: stringPtr("User"), Path: stringPtr("/page/system/user.html"), Component: stringPtr("system/user/index"), Sort: 11, Status: 1},
+			{ParentID: sysMgr.ID, Title: "用户组管理", Name: stringPtr("UserGroup"), Path: stringPtr("/page/system/group.html"), Component: stringPtr("system/group/index"), Sort: 12, Status: 1},
+			{ParentID: sysMgr.ID, Title: "菜单管理", Name: stringPtr("Menu"), Path: stringPtr("/page/system/menu.html"), Component: stringPtr("system/menu/index"), Sort: 13, Status: 1},
+			{ParentID: sysMgr.ID, Title: "权限管理", Name: stringPtr("Perm"), Path: stringPtr("/page/system/perm.html"), Component: stringPtr("system/perm/index"), Sort: 14, Status: 1},
+			{ParentID: logMgr.ID, Title: "操作日志", Name: stringPtr("UserLog"), Path: stringPtr("/page/log/log.html"), Component: stringPtr("log/oper/index"), Sort: 21, Status: 1},
 		}
 		for i := range sub {
 			if err := tx.FirstOrCreate(&sub[i], entity.Menu{Path: sub[i].Path}).Error; err != nil {
@@ -157,7 +157,7 @@ func InitMenuPerm(db *gorm.DB) {
 		// 3. 按钮级权限（每个子菜单 4 个）
 		btns := []entity.Permission{}
 		for _, m := range sub {
-			prefix := m.Name // 如 User / UserGroup / Menu / Perm / OperLog
+			prefix := m.Name // 如 User / UserGroup / Menu / Perm / UserLog
 			btns = append(btns,
 				entity.Permission{PermCode: *prefix + ":add", PermName: m.Title + "-新增", Sort: 1, Status: 1},
 				entity.Permission{PermCode: *prefix + ":edit", PermName: m.Title + "-修改", Sort: 2, Status: 1},

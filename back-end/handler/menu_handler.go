@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-30 09:47:58
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-30 09:54:21
- * @FilePath: \ginManager\handler\menu_handler.go
+ * @LastEditTime: 2025-12-01 19:10:01
+ * @FilePath: \back-end\handler\menu_handler.go
  * @Description: 菜单处理器
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
@@ -20,11 +20,15 @@ import (
 )
 
 type MenuHandler struct {
-	svc *service.MenuService
+	svc     *service.MenuService
+	permSvc *service.PermissionService // 权限
 }
 
 func NewMenuHandler() *MenuHandler {
-	return &MenuHandler{svc: service.NewMenuService()}
+	return &MenuHandler{
+		svc:     service.NewMenuService(),
+		permSvc: service.NewPermissionService(),
+	}
 }
 
 // Tree 树形菜单（无权限也可看）
@@ -85,4 +89,40 @@ func (h *MenuHandler) Get(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, dto.Success(m))
+}
+
+// handler/menu_handler.go
+func (h *MenuHandler) Side(c *gin.Context) {
+	resp, err := h.svc.SideMenu(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusOK, dto.FailMsg("查询失败", err))
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *MenuHandler) TreeForRole(c *gin.Context) {
+	roleID, _ := strconv.ParseUint(c.Query("roleId"), 10, 64)
+
+	// 1. 所有菜单（权限）
+	all, err := h.svc.Tree(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusOK, dto.FailMsg("查询菜单失败", err))
+		return
+	}
+
+	// 2. 角色已有权限 ID
+
+	checked, err := h.permSvc.GetPermIDsByRole(c.Request.Context(), roleID)
+	if err != nil {
+		c.JSON(http.StatusOK, dto.FailMsg("获取角色权限失败", err))
+		return
+	}
+	checkedMap := make(map[uint64]bool)
+	for _, id := range checked {
+		checkedMap[id] = true
+	}
+	// 3. 转换并返回
+	tree := service.BuildPermTree(all, checkedMap)
+	c.JSON(http.StatusOK, dto.Success(tree))
 }

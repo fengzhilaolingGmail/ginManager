@@ -1,3 +1,12 @@
+/*
+ * @Author: fengzhilaoling fengzhilaoling@gmail.com
+ * @Date: 2025-12-01 12:44:49
+ * @LastEditors: fengzhilaoling
+ * @LastEditTime: 2025-12-01 15:46:58
+ * @FilePath: \back-end\handler\role_handler.go
+ * @Description: 文件解释
+ * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
+ */
 package handler
 
 import (
@@ -24,6 +33,7 @@ func (h *RoleHandler) Page(c *gin.Context) {
 		c.JSON(http.StatusOK, dto.FailMsg("参数错误", err))
 		return
 	}
+
 	list, total, err := h.svc.Page(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.FailMsg("查询失败", err))

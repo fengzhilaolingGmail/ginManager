@@ -5,6 +5,10 @@
  * version:2.0.4
  */
 
+window.apiBase = 'http://localhost:8888';
+
+// layui.setter.base = window.apiBase;
+
 window.rootPath = (function (src) {
     src = document.scripts[document.scripts.length - 1].src;
     return src.substring(0, src.lastIndexOf("/") + 1);
