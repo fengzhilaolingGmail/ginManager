@@ -203,7 +203,7 @@
             } else if (obj.event === 'delete') {  // 监听删除操作
                 var checkStatus = table.checkStatus('currentTableId')
                     , data = checkStatus.data;
-                layer.alert(JSON.stringify(data));
+                layer.alert("未实现批量删除功能");
             }
         });
 
@@ -230,10 +230,36 @@
                 });
                 return false;
             } else if (obj.event === 'delete') {
-                layer.confirm('真的删除行么', function (index) {
-                    obj.del();
-                    layer.close(index);
+                var user = obj.data;
+                var tip = '确定要删除用户【' + (user.Username || '') + ' / ' + (user.Nickname || '') + '】吗？';
+                layer.confirm(tip, {icon:3, title:'删除确认'}, function(idx){
+                    layer.load(2);
+                    $.ajax({
+                        url: (window.apiBase || '') + '/api/user/del/' + user.ID,
+                        method: 'DELETE',
+                        headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                        success: function(res){
+                            layer.closeAll('loading');
+                            var ok = false;
+                            if(!res) ok = false;
+                            else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
+                            else if(typeof res === 'boolean') ok = res;
+
+                            if(ok){
+                                obj.del();          // 前端删除行
+                                layer.msg('删除成功', {icon:1, time:1000});
+                            } else {
+                                layer.msg((res && res.msg) || '删除失败', {icon:2});
+                            }
+                        },
+                        error: function(xhr){
+                            layer.closeAll('loading');
+                            layer.msg('请求失败：' + xhr.status, {icon:2});
+                        }
+                    });
+                    layer.close(idx);
                 });
+                return false;
             }
         });
 

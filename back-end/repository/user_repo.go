@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:37:48
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 10:46:43
- * @FilePath: \ginManager\repository\user_repo.go
+ * @LastEditTime: 2025-12-06 18:24:47
+ * @FilePath: \back-end\repository\user_repo.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
@@ -43,7 +43,7 @@ func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*entity.
 
 // Page 分页+模糊查询
 func (r *UserRepo) Page(ctx context.Context, username string, status uint8, page, limit int) (list []entity.User, total int64, err error) {
-	db := DB.WithContext(ctx).Model(&entity.User{}).Select("id", "username", "nickname", "email", "status", "created_at", "updated_at")
+	db := DB.WithContext(ctx).Model(&entity.User{}).Unscoped().Select("id", "username", "nickname", "email", "status", "created_at", "updated_at", "deleted_at")
 	if username != "" {
 		db = db.Where("username LIKE ?", "%"+username+"%")
 	}
