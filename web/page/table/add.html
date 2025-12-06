@@ -19,42 +19,40 @@
     <div class="layui-form-item">
         <label class="layui-form-label required">用户名</label>
         <div class="layui-input-block">
-            <input type="text" name="username" lay-verify="required" lay-reqtext="用户名不能为空" placeholder="请输入用户名" value="" class="layui-input">
-            <tip>填写自己管理账号的名称。</tip>
+            <input type="text" name="username" lay-verify="required|minlength" lay-reqtext="用户名不能为空" placeholder="请输入用户名（3-20）" value="" class="layui-input">
+            <tip>用户名 3-20 个字符。</tip>
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label required">性别</label>
+        <label class="layui-form-label required">密码</label>
         <div class="layui-input-block">
-            <input type="radio" name="sex" value="男" title="男" checked="">
-            <input type="radio" name="sex" value="女" title="女">
+            <input type="password" name="password" lay-verify="required|minpwd" lay-reqtext="密码不能为空" placeholder="请输入密码（6-32）" value="" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label required">手机</label>
+        <label class="layui-form-label required">名称</label>
         <div class="layui-input-block">
-            <input type="number" name="phone" lay-verify="required" lay-reqtext="手机不能为空" placeholder="请输入手机" value="" class="layui-input">
+            <input type="text" name="nickname" lay-verify="required" lay-reqtext="名称不能为空" placeholder="请输入名称" value="" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">邮箱</label>
         <div class="layui-input-block">
-            <input type="email" name="email" placeholder="请输入邮箱" value="" class="layui-input">
+            <input type="email" name="email" placeholder="请输入邮箱（可选）" value="" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">职业</label>
+        <label class="layui-form-label">手机</label>
         <div class="layui-input-block">
-            <input type="text" name="work" placeholder="请输入职业" value="" class="layui-input">
+            <input type="text" name="phone" placeholder="请输入手机（可选）" value="" class="layui-input">
         </div>
     </div>
-    <div class="layui-form-item layui-form-text">
-        <label class="layui-form-label">备注信息</label>
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
         <div class="layui-input-block">
-            <textarea name="remark" class="layui-textarea" placeholder="请输入备注信息"></textarea>
+            <input type="checkbox" name="status" lay-skin="switch" lay-text="活跃|禁用" checked>
         </div>
     </div>
-
     <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
@@ -62,24 +60,67 @@
     </div>
 </div>
 <script src="../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js" charset="utf-8"></script>
 <script>
     layui.use(['form'], function () {
         var form = layui.form,
             layer = layui.layer,
             $ = layui.$;
 
+        // 自定义验证规则
+        form.verify({
+            minlength: function(value, item){
+                if(value.length < 3) return '用户名至少 3 个字符';
+            },
+            minpwd: function(value, item){
+                if(value.length < 6) return '密码至少 6 个字符';
+            }
+        });
+
         //监听提交
         form.on('submit(saveBtn)', function (data) {
-            var index = layer.alert(JSON.stringify(data.field), {
-                title: '最终的提交信息'
-            }, function () {
+            var field = data.field;
+            // 处理 status（switch 返回 on/off），转换为 1/0
+            var status = (field.status === 'on' || field.status === 'true' || field.status === '1') ? 1 : 0;
 
-                // 关闭弹出层
-                layer.close(index);
+            var payload = {
+                username: field.username,
+                password: field.password,
+                nickname: field.nickname,
+                email: field.email || undefined,
+                phone: field.phone || undefined,
+                status: status
+            };
 
-                var iframeIndex = parent.layer.getFrameIndex(window.name);
-                parent.layer.close(iframeIndex);
+            layer.load(2);
+            $.ajax({
+                url: (window.apiBase || '') + '/api/user/add',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                success: function(res){
+                    layer.closeAll('loading');
+                    var ok = false;
+                    if(!res) ok = false;
+                    else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
+                    else if(typeof res === 'boolean') ok = res;
 
+                    if(ok){
+                        layer.msg('添加成功', {icon:1}, function(){
+                            // 关闭弹窗并刷新父表格
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                            try{ parent.layui.table.reload('currentTableId'); }catch(e){}
+                        });
+                    } else {
+                        layer.msg((res && res.msg) || '添加失败', {icon:2});
+                    }
+                },
+                error: function(xhr){
+                    layer.closeAll('loading');
+                    layer.msg('网络或服务器错误：' + xhr.status, {icon:2});
+                }
             });
 
             return false;

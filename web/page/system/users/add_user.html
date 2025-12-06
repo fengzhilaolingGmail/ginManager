@@ -9,24 +9,44 @@
     <link rel="stylesheet" href="../../../lib/layui-v2.13.2/css/layui.css" media="all">
     <link rel="stylesheet" href="../../../css/public.css" media="all">
     <link rel="stylesheet" href="../../../lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <style>
+        /* 居中表单容器，适配 layer 弹窗 */
+        .layuimini-form {
+            max-width: 820px;
+            margin: 28px auto;
+            background: #fff;
+            padding: 22px 26px;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .layuimini-form .layui-form-label { width: 110px; padding-right: 12px; }
+        .layuimini-form .layui-input-block { margin-left: 140px; }
+        /* 密码控件布局 */
+        .pwd-controls { display:flex; align-items:center; gap:8px; }
+        .pwd-controls .layui-input{ flex:1; }
+        /* 按钮行左对齐 */
+        .layuimini-form .layui-form-item .layui-input-block .layui-btn{ margin-left:0 }
+        .add-user-header{ display:flex; align-items:center; gap:12px; padding:6px 0 18px 0; border-bottom:1px solid #f0f0f0; margin-bottom:12px }
+        .add-user-header .header-icon{ color:#f56c6c; font-size:20px }
+        .add-user-header .header-text{ font-size:18px; font-weight:600; color:#333 }
+    </style>
 </head>
 <body>
-<div class="layui-form layuimini-form" style="padding:20px;">
+<div class="layuimini-form"> <!-- 表单容器（内部标题已移到父 layer 的标题栏） -->
     <div class="layui-form-item">
         <label class="layui-form-label required">用户名</label>
         <div class="layui-input-block">
-            <input type="text" name="username" lay-verify="required|minlength" lay-reqtext="用户名不能为空" placeholder="3-20 个字符" value="" class="layui-input">
+            <input id="usernameField" type="text" name="username" lay-verify="required|minlength" lay-reqtext="用户名不能为空" placeholder="3-20 个字符" value="" class="layui-input">
             <tip>用户名，3-20 个字符。</tip>
         </div>
     </div>
 
     <div class="layui-form-item">
         <label class="layui-form-label required">密码</label>
-        <div class="layui-input-block" style="display:flex;align-items:center;gap:8px;">
-            <input type="password" id="passwordField" name="password" lay-verify="required|minpwd" lay-reqtext="密码不能为空" placeholder="6-32 个字符" value="" class="layui-input" style="flex:1;">
+        <div class="layui-input-block pwd-controls">
+            <input type="password" id="passwordField" name="password" lay-verify="required|minpwd" lay-reqtext="密码不能为空" placeholder="6-32 个字符" value="" class="layui-input">
             <button type="button" class="layui-btn layui-btn-sm" id="genPwdBtn" title="生成 12 位高强度密码"><i class="fa fa-refresh"></i></button>
             <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="copyPwdBtn" title="复制密码到剪贴板"><i class="fa fa-copy"></i></button>
-            <tip id="pwdTip">可生成并复制强密码</tip>
         </div>
     </div>
 
@@ -78,6 +98,26 @@
             minlength: function(value){ if(value.length < 3) return '用户名至少 3 个字符'; },
             minpwd: function(value){ if(value.length < 6) return '密码至少 6 个字符'; }
         });
+
+        // 确保用户名框默认为空
+        try{ $('#usernameField').val(''); }catch(e){}
+
+        // 把带图标的“添加用户”标题注入到父 layer 的标题栏（靠近最大/最小化按钮右侧）
+        try{
+            var idx = parent.layer.getFrameIndex(window.name);
+            var $layerDom = parent.$('#layui-layer' + idx);
+            if($layerDom && $layerDom.length){
+                // 先移除已有的同类标题，避免重复
+                $layerDom.find('.parent-add-user-title').remove();
+                var titleHtml = '<div class="parent-add-user-title" style="position:absolute;right:86px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:6px;border:2px solid #f6c74a;background:#fff;z-index:9999">'
+                    + '<i class="fa fa-user-plus" style="color:#f56c6c;font-size:14px;margin-right:6px"></i>'
+                    + '<span style="font-weight:600;color:#333">添加用户</span>'
+                    + '</div>';
+
+                // append 到 .layui-layer-title 容器，以便与最小化/最大化按钮同行显示
+                $layerDom.find('.layui-layer-title').append(titleHtml);
+            }
+        }catch(e){ /* ignore if parent not accessible */ }
 
         // 密码生成与复制
         function generatePassword(len){
@@ -157,6 +197,8 @@
                 phone: f.phone || undefined,
                 status: status
             };
+
+            console.log(payload);
 
             layer.load(2);
             $.ajax({

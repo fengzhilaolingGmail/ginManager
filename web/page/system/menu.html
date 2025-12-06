@@ -61,7 +61,7 @@
             treeIdName: 'authorityId',
             treePidName: 'parentId',
             elem: '#munu-table',
-            url: 'http://localhost:8888/api/menu/tree',
+            url: (window.apiBase || '') + '/api/menu/tree',
             page: false,
             cols: [[
                 {type: 'ID'},

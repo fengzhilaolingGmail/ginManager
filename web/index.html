@@ -100,7 +100,7 @@
 
     <div class="layui-body">
 
-        <div class="layuimini-tab layui-tab-rollTool layui-tab" lay-filter="layuiminiTab" lay-allowclose="true">
+    <div class="layuimini-tab layui-tab-rollTool layui-tab panel-red" lay-filter="layuiminiTab" lay-allowclose="true">
             <ul class="layui-tab-title">
                 <li class="layui-this" id="layuiminiHomeTabId" lay-id=""></li>
             </ul>
@@ -137,7 +137,7 @@
             miniTongji = layui.miniTongji;
 
         var options = {
-            iniUrl: "http://localhost:8888/api/menu/side",    // 初始化接口
+            iniUrl: (window.apiBase || '') + "/api/menu/side",    // 初始化接口（使用全局 apiBase）
             clearUrl: "api/clear.json", // 缓存清理接口
             urlHashLocation: true,      // 是否打开hash定位
             bgColorDefault: false,      // 主题默认配置

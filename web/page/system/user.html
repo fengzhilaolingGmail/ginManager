@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="../../lib/layui-v2.13.2/css/layui.css" media="all">
     <link rel="stylesheet" href="../../css/public.css" media="all">
+    <link rel="stylesheet" href="../../lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
 </head>
 <body>
 <div class="layuimini-container">
@@ -188,12 +189,12 @@
         table.on('toolbar(currentTableFilter)', function (obj) {
                 if (obj.event === 'add') {  // 监听添加操作
                 var index = layer.open({
-                    title: '添加用户',
+                    title: '<span class="layer-title-icon"><i class="fa fa-user-plus"></i> 添加用户</span>',
                     type: 2,
                     shade: 0.2,
                     maxmin:true,
                     shadeClose: true,
-                    area: ['800px', '620px'],
+                    area: ['800px', '560px'],
                     content: '../system/users/add_user.html',
                 });
                 $(window).on("resize", function () {

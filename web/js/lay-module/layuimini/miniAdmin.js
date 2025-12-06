@@ -141,9 +141,9 @@ layui.define(["jquery", "miniMenu", "element","miniTab", "miniTheme"], function 
                     href = href.replace(locOrigin, '');
                 }
             } catch (e) {}
-            // 特殊处理常见后端地址（例如 http://localhost:8888/）
+            // 特殊处理常见后端地址（使用全局 apiBase 做替换）
             try {
-                href = href.replace('http://localhost:8888', '');
+                if (window.apiBase) href = href.replace(window.apiBase, '');
             } catch (e) {}
 
             sessionStorage.setItem('layuiminiHomeHref', href);
