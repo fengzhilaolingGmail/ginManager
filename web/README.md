@@ -101,3 +101,5 @@
 ![Image text](https://chung-common.oss-cn-beijing.aliyuncs.com/donate_qrcode.png)
 
 {"level":"info","ts":1764589911.8729613,"caller":"models/init_data.go:38","msg":"generated admin password","password":"Sp[sGo&)58Vs"}
+
+Sp[sGo&)58Vs

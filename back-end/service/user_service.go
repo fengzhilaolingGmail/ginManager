@@ -19,7 +19,15 @@ func NewUserService() *UserService {
 
 // Page 分页列表
 func (s *UserService) Page(ctx context.Context, req *dto.UserListReq) ([]entity.User, int64, error) {
-	return s.repo.Page(ctx, req.Username, req.Status, req.Page, req.Limit)
+	return s.repo.Page(ctx,
+		req.Username,
+		req.Nickname,
+		req.Status,
+		req.UpdatedStart,
+		req.UpdatedEnd,
+		req.Deleted,
+		req.Page,
+		req.Limit)
 }
 
 // Create 新增用户

@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:37:48
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-06 18:32:12
+ * @LastEditTime: 2025-12-06 19:53:45
  * @FilePath: \back-end\repository\user_repo.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -12,7 +12,9 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"ginManager/models/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -41,15 +43,42 @@ func (r *UserRepo) GetByUsername(ctx context.Context, username string) (*entity.
 	return &u, err
 }
 
-// Page 分页+模糊查询
-func (r *UserRepo) Page(ctx context.Context, username string, status uint8, page, limit int) (list []entity.User, total int64, err error) {
-	db := DB.WithContext(ctx).Model(&entity.User{}).Unscoped().Select("id", "username", "nickname", "email", "status", "created_at", "updated_at", "deleted_at")
+// Page 分页+多条件查询（username/nickname/status/更新时间/删除状态）
+func (r *UserRepo) Page(ctx context.Context,
+	username, nickname string,
+	status uint8,
+	updatedStart, updatedEnd *time.Time,
+	deleted *uint8, // nil 表示不筛选；0 未删 1 已删
+	page, limit int) (list []entity.User, total int64, err error) {
+	db := DB.WithContext(ctx).
+		Model(&entity.User{}).
+		Unscoped().
+		Select("id", "username", "nickname", "email", "status", "created_at", "updated_at", "deleted_at")
+
 	if username != "" {
 		db = db.Where("username LIKE ?", "%"+username+"%")
 	}
+	if nickname != "" {
+		db = db.Where("nickname LIKE ?", "%"+nickname+"%")
+	}
+	fmt.Println(status)
 	if status < 2 { // 0/1
 		db = db.Where("status = ?", status)
 	}
+	if updatedStart != nil && !updatedStart.IsZero() {
+		db = db.Where("updated_at >= ?", *updatedStart)
+	}
+	if updatedEnd != nil && !updatedEnd.IsZero() {
+		db = db.Where("updated_at <= ?", *updatedEnd)
+	}
+	if deleted != nil {
+		if *deleted == 1 {
+			db = db.Where("deleted_at IS NOT NULL")
+		} else {
+			db = db.Where("deleted_at IS NULL")
+		}
+	}
+
 	if err = db.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}

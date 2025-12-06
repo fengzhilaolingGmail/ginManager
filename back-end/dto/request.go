@@ -2,12 +2,18 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:48:14
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 16:55:26
- * @FilePath: \ginManager\dto\request.go
+ * @LastEditTime: 2025-12-06 19:36:59
+ * @FilePath: \back-end\dto\request.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
 package dto
+
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // =========== 登录 ===========
 type LoginReq struct {
@@ -42,6 +48,12 @@ type UserUpdateReq struct {
 
 type UserListReq struct {
 	PageReq
-	Username string `form:"username"` // 模糊查询
-	Status   uint8  `form:"status"`   // 0/1/ 空=全部
+	Username     string         `form:"username"`                // 模糊查询
+	Status       uint8          `form:"status"`                  // 0/1/ 空=全部
+	Nickname     string         `form:"nickname"`                // 模糊查询
+	UpdatedStart *time.Time     `form:"updated_start,omitempty"` // 更新时间开始
+	UpdatedEnd   *time.Time     `form:"updated_end,omitempty"`   // 更新时间结束
+	Deleted      *uint8         `form:"deleted,omitempty"`       // nil 不筛选 0 未删 1 已删
+	UpdatedAt    time.Time      `form:"updated_at"`              // 更新时间
+	DeletedAt    gorm.DeletedAt `form:"deleted_at"`              //软删除
 }

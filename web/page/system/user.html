@@ -22,20 +22,20 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">用户名</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="Username" autocomplete="off" class="layui-input" placeholder="用户名">
+                                <input type="text" name="username" autocomplete="off" class="layui-input" placeholder="用户名">
                             </div>
                         </div>
                         <div class="layui-inline">
                             <label class="layui-form-label">名称</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="Nickname" autocomplete="off" class="layui-input" placeholder="名称">
+                                <input type="text" name="nickname" autocomplete="off" class="layui-input" placeholder="名称">
                             </div>
                         </div>
                         <div class="layui-inline">
                             <label class="layui-form-label">状态</label>
                             <div class="layui-input-inline">
-                                <select name="Status">
-                                    <option value="">全部</option>
+                                <select name="status">
+                                    <option value="3">全部</option>
                                     <option value="1">活跃</option>
                                     <option value="0">禁用</option>
                                 </select>
@@ -44,7 +44,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">删除状态</label>
                             <div class="layui-input-inline">
-                                <select name="Deleted">
+                                <select name="deleted">
                                     <option value="">全部</option>
                                     <option value="0">使用中</option>
                                     <option value="1">已删除</option>
@@ -54,7 +54,9 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">更新时间</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="UpdatedAt" id="updatedAtRange" autocomplete="off" class="layui-input" placeholder="选择更新时间范围">
+                                <input type="text" id="updatedAtRange" autocomplete="off" class="layui-input" placeholder="选择更新时间范围">
+                                <input type="hidden" name="updated_start" id="updated_start">
+                                <input type="hidden" name="updated_end" id="updated_end">
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -159,25 +161,40 @@
                 elem: '#updatedAtRange',
                 type: 'datetime',
                 range: true,
-                format: 'yyyy-MM-dd HH:mm:ss'
+                format: 'yyyy-MM-dd HH:mm:ss',
+                done: function(value, start, end){
+                    // value 格式：yyyy-MM-dd HH:mm:ss - yyyy-MM-dd HH:mm:ss
+                    $('#updated_start').val(start ? start.format('yyyy-MM-ddTHH:mm:ss') : '');
+                    $('#updated_end').val(end ? end.format('yyyy-MM-ddTHH:mm:ss') : '');
+                }
             });
         }catch(e){}
 
         // 监听搜索操作
         form.on('submit(data-search-btn)', function (data) {
-            var result = JSON.stringify(data.field);
-            layer.alert(result, {
-                title: '最终的搜索信息'
-            });
+            var field = data.field;
+            var where = {};
+
+            // 模糊查询字段加 %
+            if(field.username) where.username = '%' + field.username + '%';
+            if(field.nickname) where.nickname = '%' + field.nickname + '%';
+
+            // 删除状态：空值不提交
+            if(field.deleted !== '') where.deleted = parseInt(field.deleted, 10);
+
+            // 时间范围：隐藏域已格式化为 RFC3339
+            if(field.updated_start) where.updated_start = field.updated_start;
+            if(field.updated_end) where.updated_end = field.updated_end;
+
+            // 把 status 拼到 url 参数，其余放 where
+            var statusQ = field.status !== '' ? parseInt(field.status, 10) : '';
+            var url = (window.apiBase || '') + '/api/user/list' + (statusQ !== '' ? '?status=' + statusQ : '');
 
             //执行搜索重载
             table.reload('currentTableId', {
-                page: {
-                    curr: 1
-                }
-                , where: {
-                    searchParams: result
-                }
+                page: { curr: 1 },
+                url: url,
+                where: where
             }, 'data');
 
             return false;

@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 14:50:25
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 11:26:07
- * @FilePath: \ginManager\middleware\auth.go
+ * @LastEditTime: 2025-12-06 20:09:17
+ * @FilePath: \back-end\middleware\auth.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
