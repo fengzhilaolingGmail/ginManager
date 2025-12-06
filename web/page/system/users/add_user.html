@@ -6,8 +6,8 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="../../lib/layui-v2.13.2/css/layui.css" media="all">
-    <link rel="stylesheet" href="../../css/public.css" media="all">
+    <link rel="stylesheet" href="../../../lib/layui-v2.13.2/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../../css/public.css" media="all">
 </head>
 <body>
 <div class="layui-form layuimini-form" style="padding:20px;">
@@ -21,8 +21,11 @@
 
     <div class="layui-form-item">
         <label class="layui-form-label required">密码</label>
-        <div class="layui-input-block">
-            <input type="password" name="password" lay-verify="required|minpwd" lay-reqtext="密码不能为空" placeholder="6-32 个字符" value="" class="layui-input">
+        <div class="layui-input-block" style="display:flex;align-items:center;gap:8px;">
+            <input type="password" id="passwordField" name="password" lay-verify="required|minpwd" lay-reqtext="密码不能为空" placeholder="6-32 个字符" value="" class="layui-input" style="flex:1;">
+            <button type="button" class="layui-btn layui-btn-sm" id="genPwdBtn" title="生成 12 位高强度密码"><i class="layui-icon"></i></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="copyPwdBtn" title="复制密码到剪贴板"><i class="layui-icon"></i></button>
+            <tip id="pwdTip">可生成并复制强密码</tip>
         </div>
     </div>
 
@@ -62,8 +65,8 @@
     </div>
 </div>
 
-<script src="../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
-<script src="../../js/lay-config.js" charset="utf-8"></script>
+<script src="../../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../../../js/lay-config.js" charset="utf-8"></script>
 <script>
     layui.use(['form'], function () {
         var form = layui.form,
@@ -73,6 +76,67 @@
         form.verify({
             minlength: function(value){ if(value.length < 3) return '用户名至少 3 个字符'; },
             minpwd: function(value){ if(value.length < 6) return '密码至少 6 个字符'; }
+        });
+
+        // 密码生成与复制
+        function generatePassword(len){
+            len = len || 12;
+            var upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // omit confusing I/O
+            var lower = 'abcdefghijkmnopqrstuvwxyz'; // omit l
+            var digits = '23456789'; // omit 0/1
+            var special = '!#$^&*()-_=+[]{};:,.?';
+            var all = upper + lower + digits + special;
+            var pwd = '';
+            // ensure at least one char from each class
+            pwd += upper.charAt(Math.floor(Math.random() * upper.length));
+            pwd += lower.charAt(Math.floor(Math.random() * lower.length));
+            pwd += digits.charAt(Math.floor(Math.random() * digits.length));
+            pwd += special.charAt(Math.floor(Math.random() * special.length));
+            for(var i = pwd.length; i < len; i++){
+                pwd += all.charAt(Math.floor(Math.random() * all.length));
+            }
+            // shuffle
+            pwd = pwd.split('').sort(function(){return 0.5 - Math.random();}).join('');
+            return pwd;
+        }
+
+        function copyToClipboard(text){
+            if(!text) return false;
+            if(navigator.clipboard && navigator.clipboard.writeText){
+                return navigator.clipboard.writeText(text);
+            }
+            // fallback
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try{
+                var ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            }catch(e){
+                document.body.removeChild(ta);
+                return false;
+            }
+        }
+
+        $('#genPwdBtn').on('click', function(){
+            var p = generatePassword(12);
+            $('#passwordField').val(p);
+            layer.tips('已生成强密码', '#genPwdBtn', {tips: [1, '#3595CC'], time: 1500});
+        });
+
+        $('#copyPwdBtn').on('click', function(){
+            var val = $('#passwordField').val();
+            if(!val){ layer.msg('密码为空，无法复制'); return; }
+            var prom = copyToClipboard(val);
+            if(prom && typeof prom.then === 'function'){
+                prom.then(function(){ layer.msg('已复制到剪贴板'); }).catch(function(){ layer.msg('复制失败，请手动复制'); });
+            } else {
+                if(prom) layer.msg('已复制到剪贴板'); else layer.msg('复制失败，请手动复制');
+            }
         });
 
         // 取消按钮
