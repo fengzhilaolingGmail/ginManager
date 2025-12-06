@@ -66,6 +66,7 @@
 </div>
 <script src="../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
 <script src="../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../js/lay-config.js" charset="utf-8"></script>
 <script src="../lib/jq-module/jquery.particleground.min.js" charset="utf-8"></script>
 <script>
     layui.use(['form'], function () {
@@ -97,8 +98,8 @@
             }
             console.log(window.apiBase);
             $.ajax({
-                // TODO 取消域名
-                url: 'http://localhost:8888' + '/api/auth/login',          // 后端登录接口
+                // 使用全局 apiBase
+                url: (window.apiBase || '') + '/api/auth/login',          // 后端登录接口
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({

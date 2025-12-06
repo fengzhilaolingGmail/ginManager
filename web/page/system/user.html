@@ -67,6 +67,7 @@
     </div>
 </div>
 <script src="../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js" charset="utf-8"></script>
 <script src="../../js/common/utils.js" charset="utf-8"></script>
 <script>
     layui.use(['form', 'table'], function () {
@@ -88,7 +89,7 @@
 
         table.render({
             elem: '#currentTableId',
-            url: 'http://localhost:8888/api/user/list?status=3',
+            url: (window.apiBase || '') + '/api/user/list?status=3',
             page: true,
             method: 'get',
             limit: 10,
@@ -219,7 +220,7 @@
             $el.prop('disabled', true);
 
             $.ajax({
-                url: 'http://localhost:8888/api/user/status', // 请根据后端实际接口调整
+                url: (window.apiBase || '') + '/api/user/status', // 请根据后端实际接口调整
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ id: id, status: newStatus }),
