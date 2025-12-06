@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="../../../lib/layui-v2.13.2/css/layui.css" media="all">
     <link rel="stylesheet" href="../../../css/public.css" media="all">
+    <link rel="stylesheet" href="../../../lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
 </head>
 <body>
 <div class="layui-form layuimini-form" style="padding:20px;">
@@ -23,8 +24,8 @@
         <label class="layui-form-label required">密码</label>
         <div class="layui-input-block" style="display:flex;align-items:center;gap:8px;">
             <input type="password" id="passwordField" name="password" lay-verify="required|minpwd" lay-reqtext="密码不能为空" placeholder="6-32 个字符" value="" class="layui-input" style="flex:1;">
-            <button type="button" class="layui-btn layui-btn-sm" id="genPwdBtn" title="生成 12 位高强度密码"><i class="layui-icon"></i></button>
-            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="copyPwdBtn" title="复制密码到剪贴板"><i class="layui-icon"></i></button>
+            <button type="button" class="layui-btn layui-btn-sm" id="genPwdBtn" title="生成 12 位高强度密码"><i class="fa fa-refresh"></i></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="copyPwdBtn" title="复制密码到剪贴板"><i class="fa fa-copy"></i></button>
             <tip id="pwdTip">可生成并复制强密码</tip>
         </div>
     </div>
