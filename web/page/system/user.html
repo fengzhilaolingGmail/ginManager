@@ -246,10 +246,8 @@
             $el.prop('disabled', true);
 
             $.ajax({
-                url: (window.apiBase || '') + '/api/user/status', // 请根据后端实际接口调整
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ id: id, status: newStatus }),
+                url: (window.apiBase || '') + '/api/user/status/' + id + '/' + newStatus,
+                method: 'PUT',
                 headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
                 success: function(res){
                     // 兼容不同后端返回格式
@@ -259,7 +257,9 @@
                     else if(typeof res === 'boolean') ok = res;
 
                     if(ok){
-                        layer.msg('状态已更新', {icon:1, time:1000});
+                        var msg = newStatus === 1 ? '活跃中' : '已禁用';
+                        var icon = newStatus === 1 ? 1 : 2;
+                        layer.msg(msg, {icon: icon, time: 1000});
                         // 刷新表格数据以保持一致
                         table.reload('currentTableId');
                     } else {

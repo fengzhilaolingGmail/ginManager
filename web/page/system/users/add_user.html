@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-<div class="layuimini-form"> <!-- 表单容器（内部标题已移到父 layer 的标题栏） -->
+<form class="layui-form layuimini-form" lay-filter="addUserForm"> <!-- 表单容器（内部标题已移到父 layer 的标题栏） -->
     <div class="layui-form-item">
         <label class="layui-form-label required">用户名</label>
         <div class="layui-input-block">
@@ -80,11 +80,11 @@
 
     <div class="layui-form-item">
         <div class="layui-input-block">
-            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveUserBtn">确认保存</button>
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveUserBtn" style="margin-right:12px">确认保存</button>
             <button type="button" class="layui-btn layui-btn-primary" id="cancelBtn">取消</button>
         </div>
     </div>
-</div>
+</form>
 
 <script src="../../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
 <script src="../../../js/lay-config.js" charset="utf-8"></script>
