@@ -67,37 +67,14 @@
     </div>
 </div>
 <script src="../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../../js/common/utils.js" charset="utf-8"></script>
 <script>
     layui.use(['form', 'table'], function () {
         var $ = layui.jquery,
             form = layui.form,
             table = layui.table;
 
-        // 将 UpdatedAt 转换为更易读的时间格式（YYYY-MM-DD HH:mm:ss）
-        function formatDateTime(val) {
-            if (!val && val !== 0) return '';
-            var ts = val;
-            // 如果是数字字符串或数字，转换为 Number
-            if (typeof ts === 'string' && /^\d+$/.test(ts)) ts = Number(ts);
-            // 如果是数字并且长度为10，视为秒，乘以1000
-            if (typeof ts === 'number' && ts.toString().length === 10) ts = ts * 1000;
-            // 如果是字符串，尝试解析
-            if (typeof ts === 'string') {
-                var p = Date.parse(ts);
-                if (!isNaN(p)) ts = p;
-                else {
-                    // 兼容 yyyy-mm-dd hh:ii:ss 格式
-                    var alt = ts.replace(' ', 'T');
-                    p = Date.parse(alt);
-                    if (!isNaN(p)) ts = p;
-                    else return ts;
-                }
-            }
-            var d = new Date(ts);
-            if (isNaN(d.getTime())) return val;
-            function pad(n){ return n < 10 ? '0' + n : n }
-            return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-        }
+        // formatDateTime 已提取到公共工具：../../js/common/utils.js
 
         $.ajaxSetup({
             beforeSend: function (xhr) {
@@ -148,7 +125,7 @@
                         return '<span class="layui-badge layui-bg-green">使用中</span>';
                     }
                 }},
-                    {field: 'UpdatedAt', width: 220, title: '更新时间', templet: function(d){ return formatDateTime(d.UpdatedAt); }},
+                    {field: 'UpdatedAt', width: 280, title: '更新时间', templet: function(d){ return formatDateTime(d.UpdatedAt); }},
                 {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
             ]],
             limits: [10, 15, 20, 25, 50, 100],
