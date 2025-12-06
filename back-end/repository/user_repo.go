@@ -2,7 +2,7 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:37:48
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-06 18:24:47
+ * @LastEditTime: 2025-12-06 18:32:12
  * @FilePath: \back-end\repository\user_repo.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
@@ -100,7 +100,9 @@ func (r *UserRepo) UpdatePassword(ctx context.Context, id uint64, newHash string
 
 // Delete 物理删除（可选逻辑删）
 func (r *UserRepo) Delete(ctx context.Context, id uint64) error {
-	return DB.WithContext(ctx).Delete(&entity.User{}, id).Error
+	return DB.WithContext(ctx).
+		Where("username != ?", "admin").
+		Delete(&entity.User{}, id).Error
 }
 
 // ExistsUsername 排除自身查重

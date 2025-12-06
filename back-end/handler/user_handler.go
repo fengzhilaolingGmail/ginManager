@@ -110,6 +110,10 @@ func (h *UserHandler) UpdatePassword(c *gin.Context) {
 // Delete 删除用户  /api/user/del/:id
 func (h *UserHandler) Delete(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	if id == 1 {
+		c.JSON(http.StatusOK, dto.FailMsg("不能删除超级管理员!", nil))
+		return
+	}
 	if err := h.svc.Delete(c.Request.Context(), id); err != nil {
 		c.JSON(http.StatusOK, dto.FailMsg("删除失败!", err))
 		return

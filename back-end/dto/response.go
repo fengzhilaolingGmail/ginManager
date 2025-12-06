@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-29 13:48:27
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-11-29 17:46:54
- * @FilePath: \ginManager\dto\response.go
+ * @LastEditTime: 2025-12-06 18:44:16
+ * @FilePath: \back-end\dto\response.go
  * @Description: 文件解释
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
