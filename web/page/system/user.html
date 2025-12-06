@@ -19,27 +19,41 @@
                 <form class="layui-form layui-form-pane" action="">
                     <div class="layui-form-item">
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户姓名</label>
+                            <label class="layui-form-label">用户名</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="username" autocomplete="off" class="layui-input">
+                                <input type="text" name="Username" autocomplete="off" class="layui-input" placeholder="用户名">
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户性别</label>
+                            <label class="layui-form-label">名称</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="sex" autocomplete="off" class="layui-input">
+                                <input type="text" name="Nickname" autocomplete="off" class="layui-input" placeholder="名称">
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户城市</label>
+                            <label class="layui-form-label">状态</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="city" autocomplete="off" class="layui-input">
+                                <select name="Status">
+                                    <option value="">全部</option>
+                                    <option value="1">活跃</option>
+                                    <option value="0">禁用</option>
+                                </select>
                             </div>
                         </div>
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户职业</label>
+                            <label class="layui-form-label">删除状态</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="classify" autocomplete="off" class="layui-input">
+                                <select name="Deleted">
+                                    <option value="">全部</option>
+                                    <option value="0">使用中</option>
+                                    <option value="1">已删除</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">更新时间</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="UpdatedAt" id="updatedAtRange" autocomplete="off" class="layui-input" placeholder="选择更新时间范围">
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -70,10 +84,11 @@
 <script src="../../js/lay-config.js" charset="utf-8"></script>
 <script src="../../js/common/utils.js" charset="utf-8"></script>
 <script>
-    layui.use(['form', 'table'], function () {
+    layui.use(['form', 'table', 'laydate'], function () {
         var $ = layui.jquery,
             form = layui.form,
-            table = layui.table;
+            table = layui.table,
+            laydate = layui.laydate;
 
         // formatDateTime 已提取到公共工具：../../js/common/utils.js
 
@@ -136,6 +151,16 @@
                 try { form.render(); } catch(e) {}
             }
         });
+
+        // 初始化更新时间范围选择器（带时间）
+        try{
+            laydate.render({
+                elem: '#updatedAtRange',
+                type: 'datetime',
+                range: true,
+                format: 'yyyy-MM-dd HH:mm:ss'
+            });
+        }catch(e){}
 
         // 监听搜索操作
         form.on('submit(data-search-btn)', function (data) {
