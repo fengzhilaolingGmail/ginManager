@@ -103,18 +103,16 @@
             cols: [[
                 {type: "checkbox", width: 50},
                 {field: 'ID', width: 80, title: 'ID', sort: true},
-                {field: 'Username', width: 100, title: '用户名'},
-                {field: 'Nickname', width: 100, title: '名称'},
-                {field: 'Email', width: 200, title: '邮箱'},
+                {field: 'Username', width: 120, title: '用户名'},
+                {field: 'Nickname', width: 120, title: '名称'},
+                {field: 'Email', width: 250, title: '邮箱'},
                 {field: 'Phone', title: '电话', minWidth: 100},
                 // 状态：1 表示选中/活跃，0 表示未选中/禁用。显示为带颜色的 badge
-                {field: 'Status', width: 110, title: '状态', align: 'center', templet: function(d){
-                    var s = (d.Status === 1 || d.Status === '1') ? 1 : 0;
-                    if(s === 1){
-                        return '<span class="layui-badge layui-bg-green">活跃</span>';
-                    } else {
-                        return '<span class="layui-badge layui-bg-gray">禁用</span>';
-                    }
+                {field: 'Status', width: 140, title: '状态', align: 'center', templet: function(d){
+                    // 使用 layui 开关（switch）显示状态，便于切换
+                    var checked = (d.Status === 1 || d.Status === '1') ? 'checked' : '';
+                    // lay-filter 为 userStatus，用于监听切换事件；data-id 保存用户 ID
+                    return '<input type="checkbox" name="statusSwitch" lay-skin="switch" lay-text="活跃|禁用" lay-filter="userStatus" data-id="'+ d.ID +'" '+ checked +' />';
                 },sort: true},
                 // 删除状态：如果 DeletedAt 有值则视为已删除（红色），否则使用中（绿色）
                 {field: 'DeletedAt', width: 140, title: '删除状态', sort: true, align: 'center', templet: function(d){
@@ -131,7 +129,11 @@
             limits: [10, 15, 20, 25, 50, 100],
             limit: 15,
             page: true,
-            skin: 'line'
+            skin: 'line',
+            done: function(res, curr, count){
+                // 表格渲染完成后渲染 layui form 元素（使 switch 生效）
+                try { form.render(); } catch(e) {}
+            }
         });
 
         // 监听搜索操作
@@ -206,6 +208,49 @@
                     layer.close(index);
                 });
             }
+        });
+
+        // 监听状态开关切换（lay-filter="userStatus"）
+        form.on('switch(userStatus)', function(obj){
+            var $el = $(obj.elem);
+            var id = $el.data('id');
+            var newStatus = obj.elem.checked ? 1 : 0;
+            // 禁用开关，避免重复点击
+            $el.prop('disabled', true);
+
+            $.ajax({
+                url: 'http://localhost:8888/api/user/status', // 请根据后端实际接口调整
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: id, status: newStatus }),
+                headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                success: function(res){
+                    // 兼容不同后端返回格式
+                    var ok = false;
+                    if(!res) ok = false;
+                    else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
+                    else if(typeof res === 'boolean') ok = res;
+
+                    if(ok){
+                        layer.msg('状态已更新', {icon:1, time:1000});
+                        // 刷新表格数据以保持一致
+                        table.reload('currentTableId');
+                    } else {
+                        layer.msg((res && res.msg) || '更新失败', {icon:2});
+                        // 回滚开关状态
+                        $el.prop('checked', !obj.elem.checked);
+                        form.render();
+                    }
+                },
+                error: function(){
+                    layer.msg('请求失败，请检查网络或后端接口', {icon:2});
+                    $el.prop('checked', !obj.elem.checked);
+                    form.render();
+                },
+                complete: function(){
+                    $el.prop('disabled', false);
+                }
+            });
         });
 
     });
