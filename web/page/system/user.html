@@ -100,13 +100,29 @@
             cols: [[
                 {type: "checkbox", width: 50},
                 {field: 'ID', width: 80, title: 'ID', sort: true},
-                {field: 'Username', width: 80, title: '用户名', sort: true},
-                {field: 'Nickname', width: 80, title: '名称'},
-                {field: 'Email', width: 80, title: '邮箱'},
-                {field: 'Phone', title: '电话', minWidth: 150,sort: true},
-                {field: 'Status', width: 80, title: '状态'},
-                {field: 'UpdatedAt', width: 80, title: '更新时间'},
-                {field: 'DeletedAt', width: 135, title: '删除状态', sort: true},
+                {field: 'Username', width: 100, title: '用户名'},
+                {field: 'Nickname', width: 100, title: '名称'},
+                {field: 'Email', width: 200, title: '邮箱'},
+                {field: 'Phone', title: '电话', minWidth: 100},
+                // 状态：1 表示选中/活跃，0 表示未选中/禁用。显示为带颜色的 badge
+                {field: 'Status', width: 110, title: '状态', align: 'center', templet: function(d){
+                    var s = (d.Status === 1 || d.Status === '1') ? 1 : 0;
+                    if(s === 1){
+                        return '<span class="layui-badge layui-bg-green">活跃</span>';
+                    } else {
+                        return '<span class="layui-badge layui-bg-gray">禁用</span>';
+                    }
+                },sort: true},
+                // 删除状态：如果 DeletedAt 有值则视为已删除（红色），否则使用中（绿色）
+                {field: 'DeletedAt', width: 140, title: '删除状态', sort: true, align: 'center', templet: function(d){
+                    var del = d.DeletedAt;
+                    if(del && del !== '' && del !== '0000-00-00 00:00:00'){
+                        return '<span class="layui-badge layui-bg-red">已删除</span>';
+                    } else {
+                        return '<span class="layui-badge layui-bg-green">使用中</span>';
+                    }
+                }},
+                {field: 'UpdatedAt', width: 220, title: '更新时间'},
                 {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
             ]],
             limits: [10, 15, 20, 25, 50, 100],
