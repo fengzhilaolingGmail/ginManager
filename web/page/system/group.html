@@ -123,7 +123,7 @@
             cols: [[
                 {type: "checkbox", width: 50},
                 {field: 'ID', width: 80, title: 'ID', sort: true},
-                {field: 'GroupName', width: 150, title: '用户组名'},
+                {field: 'GroupCode', width: 150, title: '组编码'},
                 {field: 'GroupName', width: 150, title: '组名称'},
                 {field: 'Description', title: '描述', minWidth: 200},
                 // 状态：1 表示选中/活跃，0 表示未选中/禁用。显示为带颜色的 badge
@@ -314,7 +314,7 @@
                 return false;
             } else if (obj.event === 'delete') {
                 var group = obj.data;
-                var tip = '确定要删除用户组【' + (group.GroupName || '') + ' / ' + (group.DisplayName || '') + '】吗？';
+                var tip = '确定要删除用户组【' + (group.GroupCode || '') + ' / ' + (group.GroupName || '') + '】吗？';
                 layer.confirm(tip, {icon:3, title:'删除确认'}, function(idx){
                     layer.load(2);
                     $.ajax({

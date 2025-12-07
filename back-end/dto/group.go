@@ -12,7 +12,8 @@ package dto
 
 type GroupListReq struct {
 	PageReq
-	GroupName string `form:"group_name"` // 模糊
+	GroupName string `form:"group_name"`        // 模糊
+	Deleted   *uint8 `form:"deleted,omitempty"` // nil 不筛选 0 未删 1 已删
 }
 
 type GroupAddReq struct {

@@ -9,7 +9,11 @@
  */
 package entity
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // ----------------- 用户操作日志 -----------------
 type UserLog struct {
@@ -26,4 +30,5 @@ type UserLog struct {
 	ErrorMsg   *string `gorm:"type:text;comment:错误信息"`
 	DurationMs *int    `gorm:"comment:耗时(ms)"`
 	CreatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `gorm:"index"` // 软删除
 }

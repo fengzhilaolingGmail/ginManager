@@ -28,7 +28,7 @@ func NewGroupService() *GroupService {
 
 // Page 分页
 func (s *GroupService) Page(ctx context.Context, req *dto.GroupListReq) ([]entity.UserGroup, int64, error) {
-	return s.repo.Page(ctx, req.GroupName, req.Page, req.Limit)
+	return s.repo.Page(ctx, req.GroupName, req.Deleted, req.Page, req.Limit)
 }
 
 // Create 新增

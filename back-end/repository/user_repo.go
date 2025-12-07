@@ -93,6 +93,15 @@ func (r *UserRepo) Create(ctx context.Context, u *entity.User) error {
 
 // Update 更新非零字段
 func (r *UserRepo) Update(ctx context.Context, u *entity.User, id uint64) error {
+	// 如果是管理员用户，强制保持激活状态
+	var old entity.User
+	if err := DB.WithContext(ctx).First(&old, id).Error; err != nil {
+		return err
+	}
+	if old.Username == "admin" {
+		u.Status = 1
+	}
+
 	db := DB.WithContext(ctx).
 		Model(&entity.User{}).
 		Where("id = ? AND deleted_at IS NULL", id).
@@ -105,6 +114,15 @@ func (r *UserRepo) Update(ctx context.Context, u *entity.User, id uint64) error 
 
 // UpdateStatus 单独切换状态
 func (r *UserRepo) UpdateStatus(ctx context.Context, id uint64, status uint8) error {
+	// 禁止修改管理员用户的状态
+	var u entity.User
+	if err := DB.WithContext(ctx).Select("id", "username").First(&u, id).Error; err != nil {
+		return err
+	}
+	if u.Username == "admin" {
+		return errors.New("管理员用户状态不能被更改")
+	}
+
 	db := DB.WithContext(ctx).
 		Model(&entity.User{}).
 		Where("id = ? AND deleted_at IS NULL", id).
