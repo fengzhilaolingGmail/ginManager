@@ -28,7 +28,8 @@ func NewGroupService() *GroupService {
 
 // Page 分页
 func (s *GroupService) Page(ctx context.Context, req *dto.GroupListReq) ([]entity.UserGroup, int64, error) {
-	return s.repo.Page(ctx, req.GroupName, req.Deleted, req.Page, req.Limit)
+	// UpdatedStart/UpdatedEnd are already *time.Time in DTO, pass through
+	return s.repo.Page(ctx, req.GroupName, req.GroupCode, req.Status, req.UpdatedStart, req.UpdatedEnd, req.Deleted, req.Page, req.Limit)
 }
 
 // Create 新增

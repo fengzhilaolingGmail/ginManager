@@ -2,8 +2,8 @@
  * @Author: fengzhilaoling fengzhilaoling@gmail.com
  * @Date: 2025-11-30 09:43:36
  * @LastEditors: fengzhilaoling
- * @LastEditTime: 2025-12-01 10:40:49
- * @FilePath: \ginManager\repository\group_repo.go
+ * @LastEditTime: 2025-12-07 17:26:44
+ * @FilePath: \back-end\repository\group_repo.go
  * @Description: 用户组仓库
  * Copyright (c) 2025 by fengzhilaoling@gmail.com, All Rights Reserved.
  */
@@ -14,6 +14,7 @@ import (
 	"context"
 	"errors"
 	"ginManager/models/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -23,10 +24,27 @@ type GroupRepo struct{}
 func NewGroupRepo() *GroupRepo { return &GroupRepo{} }
 
 // Page 分页
-func (r *GroupRepo) Page(ctx context.Context, name string, deleted *uint8, page, limit int) (list []entity.UserGroup, total int64, err error) {
+func (r *GroupRepo) Page(ctx context.Context,
+	groupName, groupCode string,
+	status *uint8,
+	updatedStart, updatedEnd *time.Time,
+	deleted *uint8,
+	page, limit int) (list []entity.UserGroup, total int64, err error) {
 	db := DB.WithContext(ctx).Model(&entity.UserGroup{}).Unscoped()
-	if name != "" {
-		db = db.Where("group_name LIKE ?", "%"+name+"%")
+	if groupName != "" {
+		db = db.Where("group_name LIKE ?", "%"+groupName+"%")
+	}
+	if groupCode != "" {
+		db = db.Where("group_code LIKE ?", "%"+groupCode+"%")
+	}
+	if status != nil && *status < 2 {
+		db = db.Where("status = ?", *status)
+	}
+	if updatedStart != nil && !updatedStart.IsZero() {
+		db = db.Where("updated_at >= ?", *updatedStart)
+	}
+	if updatedEnd != nil && !updatedEnd.IsZero() {
+		db = db.Where("updated_at <= ?", *updatedEnd)
 	}
 	if deleted != nil {
 		if *deleted == 1 {

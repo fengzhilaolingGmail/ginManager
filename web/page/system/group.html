@@ -20,9 +20,9 @@
                 <form class="layui-form layui-form-pane" action="">
                     <div class="layui-form-item">
                         <div class="layui-inline">
-                            <label class="layui-form-label">用户组名</label>
+                            <label class="layui-form-label">组编码</label>
                             <div class="layui-input-inline">
-                                <input type="text" name="groupname" autocomplete="off" class="layui-input" placeholder="用户组名">
+                                <input type="text" name="group_code" autocomplete="off" class="layui-input" placeholder="组编码">
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -228,10 +228,11 @@
             var where = {};
 
             // 用户组名：模糊匹配
-            if(field.groupname) where.groupname = '%' + field.groupname + '%';
-            
+            // 组编码：模糊匹配
+            if(field.group_code) where.group_code = '%' + field.group_code + '%';
+
             // 显示名称：模糊匹配
-            if(field.display_name) where.display_name = '%' + field.display_name + '%';
+            if(field.group_name) where.group_name = '%' + field.group_name + '%';
 
             // 删除状态：空值不提交
             if(field.deleted !== '') where.deleted = parseInt(field.deleted, 10);
@@ -262,7 +263,7 @@
         // 重置按钮事件
         $('#reset-btn').on('click', function(){
             // 清空表单字段
-            $('input[name="groupname"], input[name="display_name"], input[name="updated_start"], input[name="updated_end"]').val('');
+            $('input[name="group_code"], input[name="group_name"], input[name="updated_start"], input[name="updated_end"]').val('');
             $('select[name="status"], select[name="deleted"]').val('');
 
             // 重新渲染表单
