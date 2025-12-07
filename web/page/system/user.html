@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head
     <meta charset="utf-8">
     <title>layui</title>
     <meta name="renderer" content="webkit">
@@ -295,15 +295,15 @@
         table.on('tool(currentTableFilter)', function (obj) {
             var data = obj.data;
             if (obj.event === 'edit') {
-                // TODO 用户编辑功能未实现
+                var user = obj.data;
                 var index = layer.open({
-                    title: '编辑用户',
+                    title: '<span class="layer-title-icon"><i class="fa fa-edit"></i> 编辑用户</span>',
                     type: 2,
                     shade: 0.2,
                     maxmin:true,
                     shadeClose: true,
-                    area: ['100%', '100%'],
-                    content: '../page/table/edit.html',
+                    area: ['800px', '580px'],
+                    content: '../system/users/edit_user.html?id=' + user.ID,
                 });
                 $(window).on("resize", function () {
                     layer.full(index);

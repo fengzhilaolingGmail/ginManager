@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>编辑用户</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../../lib/layui-v2.13.2/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../../css/public.css" media="all">
+    <link rel="stylesheet" href="../../../lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <style>
+        /* 居中表单容器，适配 layer 弹窗 */
+        .layuimini-form {
+            max-width: 820px;
+            margin: 28px auto;
+            background: #fff;
+            padding: 22px 26px;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .layuimini-form .layui-form-label { width: 110px; padding-right: 12px; }
+        .layuimini-form .layui-input-block { margin-left: 140px; }
+        /* 密码控件布局 */
+        .pwd-controls { display:flex; align-items:center; gap:8px; }
+        .pwd-controls .layui-input{ flex:1; }
+        /* 按钮行左对齐 */
+        .layuimini-form .layui-form-item .layui-input-block .layui-btn{ margin-left:0 }
+        .edit-user-header{ display:flex; align-items:center; gap:12px; padding:6px 0 18px 0; border-bottom:1px solid #f0f0f0; margin-bottom:12px }
+        .edit-user-header .header-icon{ color:#409eff; font-size:20px }
+        .edit-user-header .header-text{ font-size:18px; font-weight:600; color:#333 }
+        /* 用户名字段只读样式 */
+        .username-readonly { background-color: #f5f7fa; color: #909399; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<form class="layui-form layuimini-form" lay-filter="editUserForm">
+    <!-- 隐藏的用户ID字段 -->
+    <input type="hidden" name="id" id="userId">
+    <!-- 用户ID和用户名放在同一行 -->
+    <div class="layui-form-item">
+        <div class="layui-inline" style="width: 48%;">
+            <label class="layui-form-label">用户ID</label>
+            <div class="layui-input-inline" style="width: 120px;">
+                <input type="text" id="userIdDisplay" disabled class="layui-input layui-disabled" placeholder="用户ID">
+            </div>
+        </div>
+        <div class="layui-inline" style="width: 48%;">
+            <label class="layui-form-label required">用户名</label>
+            <div class="layui-input-inline" style="width: 120px;">
+                <input type="text" id="usernameField" name="username" disabled class="layui-input username-readonly" placeholder="用户名">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block" style="margin-left: 0; padding-left: 2px;">
+            <tip style="font-size: 14px;">用户ID和用户名不可修改。</tip>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="nickname" lay-verify="required" lay-reqtext="名称不能为空" placeholder="名称" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-block">
+            <input type="email" name="email" placeholder="可选，格式：name@example.com" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机</label>
+        <div class="layui-input-block">
+            <input type="text" name="phone" placeholder="可选" value="" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="status" lay-skin="switch" lay-text="活跃|禁用" checked>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">新密码</label>
+        <div class="layui-input-block pwd-controls">
+            <input type="password" id="passwordField" name="password" placeholder="留空表示不修改密码，如需修改请输入6-64个字符" value="" class="layui-input">
+            <button type="button" class="layui-btn layui-btn-sm" id="genPwdBtn" title="生成 12 位高强度密码"><i class="fa fa-refresh"></i></button>
+            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="copyPwdBtn" title="复制密码到剪贴板"><i class="fa fa-copy"></i></button>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveUserBtn" style="margin-right:12px">确认保存</button>
+            <button type="button" class="layui-btn layui-btn-primary" id="cancelBtn">取消</button>
+        </div>
+    </div>
+</form>
+
+<script src="../../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../../../js/lay-config.js" charset="utf-8"></script>
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        form.verify({
+            minpwd: function(value){ 
+                if(value && value.length > 0 && value.length < 6) return '密码至少 6 个字符'; 
+            }
+        });
+
+        // 获取URL参数
+        function getQueryParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return decodeURIComponent(r[2]);
+            return null;
+        }
+
+        // 加载用户数据 - 从URL参数和父页面获取
+        function loadUserData() {
+            var userId = getQueryParam('id');
+            if (!userId) {
+                layer.msg('用户ID参数缺失', {icon: 2});
+                return;
+            }
+
+            // 从父页面获取用户数据
+            try {
+                // 尝试从父页面的表格数据中获取用户信息
+                var parentData = parent.layui.table.cache.currentTableId;
+                var user = null;
+                
+                if (parentData && parentData.length > 0) {
+                    for (var i = 0; i < parentData.length; i++) {
+                        if (parentData[i].ID == userId) {
+                            user = parentData[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (user) {
+                    // 填充表单数据
+                    $('#userId').val(user.ID);
+                    $('#userIdDisplay').val(user.ID);
+                    $('#usernameField').val(user.Username);
+                    $('input[name="nickname"]').val(user.Nickname || '');
+                    $('input[name="email"]').val(user.Email || '');
+                    $('input[name="phone"]').val(user.Phone || '');
+                    
+                    // 设置状态开关
+                    if (user.Status === 0 || user.Status === '0') {
+                        $('input[name="status"]').removeAttr('checked');
+                    } else {
+                        $('input[name="status"]').attr('checked', 'checked');
+                    }
+                    
+                    // 重新渲染表单
+                    form.render();
+                } else {
+                    // 如果父页面没有找到数据，尝试直接调用API
+                    loadUserDataFromAPI(userId);
+                }
+            } catch (e) {
+                // 如果获取父页面数据失败，调用API
+                loadUserDataFromAPI(userId);
+            }
+        }
+
+        // 从API加载用户数据
+        function loadUserDataFromAPI(userId) {
+            layer.load(2);
+            $.ajax({
+                url: (window.apiBase || '') + '/api/user/' + userId,
+                method: 'GET',
+                headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                success: function(res) {
+                    layer.closeAll('loading');
+                    if (res && res.code === 0 && res.data) {
+                        var user = res.data;
+                        // 填充表单数据
+                        $('#userId').val(user.id);
+                        $('#userIdDisplay').val(user.id);
+                        $('#usernameField').val(user.username);
+                        $('input[name="nickname"]').val(user.nickname || '');
+                        $('input[name="email"]').val(user.email || '');
+                        $('input[name="phone"]').val(user.phone || '');
+                        
+                        // 设置状态开关
+                        if (user.status === 0) {
+                            $('input[name="status"]').removeAttr('checked');
+                        } else {
+                            $('input[name="status"]').attr('checked', 'checked');
+                        }
+                        
+                        // 重新渲染表单
+                        form.render();
+                    } else {
+                        layer.msg('加载用户数据失败', {icon: 2});
+                    }
+                },
+                error: function(xhr) {
+                    layer.closeAll('loading');
+                    // 如果获取单个用户API不存在，显示错误信息
+                    if (xhr.status === 404) {
+                        layer.msg('获取用户详情接口不存在，请检查后端API配置', {icon: 2});
+                    } else {
+                        layer.msg('请求错误：' + xhr.status, {icon: 2});
+                    }
+                }
+            });
+        }
+
+        // 页面加载时获取用户数据
+        loadUserData();
+
+        // 把带图标的"编辑用户"标题注入到父 layer 的标题栏
+        try{
+            var idx = parent.layer.getFrameIndex(window.name);
+            var $layerDom = parent.$('#layui-layer' + idx);
+            if($layerDom && $layerDom.length){
+                // 先移除已有的同类标题，避免重复
+                $layerDom.find('.parent-edit-user-title').remove();
+                var titleHtml = '<div class="parent-edit-user-title" style="position:absolute;right:86px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:6px;border:2px solid #409eff;background:#fff;z-index:9999">'
+                    + '<i class="fa fa-edit" style="color:#409eff;font-size:14px;margin-right:6px"></i>'
+                    + '<span style="font-weight:600;color:#333">编辑用户</span>'
+                    + '</div>';
+
+                // append 到 .layui-layer-title 容器，以便与最小化/最大化按钮同行显示
+                $layerDom.find('.layui-layer-title').append(titleHtml);
+            }
+        }catch(e){ /* ignore if parent not accessible */ }
+
+        // 密码生成与复制
+        function generatePassword(len){
+            len = len || 12;
+            var upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // omit confusing I/O
+            var lower = 'abcdefghijkmnopqrstuvwxyz'; // omit l
+            var digits = '23456789'; // omit 0/1
+            var special = '!#$^&*()-_=+[]{};:,.?';
+            var all = upper + lower + digits + special;
+            var pwd = '';
+            // ensure at least one char from each class
+            pwd += upper.charAt(Math.floor(Math.random() * upper.length));
+            pwd += lower.charAt(Math.floor(Math.random() * lower.length));
+            pwd += digits.charAt(Math.floor(Math.random() * digits.length));
+            pwd += special.charAt(Math.floor(Math.random() * special.length));
+            for(var i = pwd.length; i < len; i++){
+                pwd += all.charAt(Math.floor(Math.random() * all.length));
+            }
+            // shuffle
+            pwd = pwd.split('').sort(function(){return 0.5 - Math.random();}).join('');
+            return pwd;
+        }
+
+        function copyToClipboard(text){
+            if(!text) return false;
+            if(navigator.clipboard && navigator.clipboard.writeText){
+                return navigator.clipboard.writeText(text);
+            }
+            // fallback
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try{
+                var ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            }catch(e){
+                document.body.removeChild(ta);
+                return false;
+            }
+        }
+
+        $('#genPwdBtn').on('click', function(){
+            var p = generatePassword(12);
+            $('#passwordField').val(p);
+            layer.tips('已生成强密码', '#genPwdBtn', {tips: [1, '#3595CC'], time: 1500});
+        });
+
+        $('#copyPwdBtn').on('click', function(){
+            var val = $('#passwordField').val();
+            if(!val){ layer.msg('密码为空，无法复制'); return; }
+            var prom = copyToClipboard(val);
+            if(prom && typeof prom.then === 'function'){
+                prom.then(function(){ layer.msg('已复制到剪贴板'); }).catch(function(){ layer.msg('复制失败，请手动复制'); });
+            } else {
+                if(prom) layer.msg('已复制到剪贴板'); else layer.msg('复制失败，请手动复制');
+            }
+        });
+
+        // 取消按钮
+        $('#cancelBtn').on('click', function(){
+            var idx = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(idx);
+        });
+
+        form.on('submit(saveUserBtn)', function(data){
+            var f = data.field;
+            var userId = $('#userId').val();
+            
+            if (!userId) {
+                layer.msg('用户ID缺失', {icon: 2});
+                return false;
+            }
+
+            var status = (f.status === 'on' || f.status === 'true' || f.status === '1') ? 1 : 0;
+            
+            // 构建请求数据，只包含需要更新的字段
+            var payload = {
+                nickname: f.nickname
+            };
+
+            // 可选字段，只有有值才添加
+            if (f.email) payload.email = f.email;
+            if (f.phone) payload.phone = f.phone;
+            payload.status = status;
+            
+            // 密码字段，只有输入了新密码才添加
+            if (f.password) {
+                payload.password = f.password;
+            }
+
+            console.log('更新用户数据:', payload);
+
+            layer.load(2);
+            $.ajax({
+                url: (window.apiBase || '') + '/api/user/edit/' + userId,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                success: function(res){
+                    layer.closeAll('loading');
+                    var ok = false;
+                    if(!res) ok = false;
+                    else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
+                    else if(typeof res === 'boolean') ok = res;
+
+                    if(ok){
+                        layer.msg('更新成功', {icon:1}, function(){
+                            var idx = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(idx);
+                            try{ parent.layui.table.reload('currentTableId'); }catch(e){}
+                        });
+                    } else {
+                        layer.msg((res && res.msg) || '更新失败', {icon:2});
+                    }
+                },
+                error: function(xhr){
+                    layer.closeAll('loading');
+                    layer.msg('请求错误：' + xhr.status, {icon:2});
+                }
+            });
+
+            return false;
+        });
+    });
+</script>
+</body>
+</html>
