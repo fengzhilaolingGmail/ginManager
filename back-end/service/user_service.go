@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"ginManager/dto"
 	"ginManager/models/entity"
 	"ginManager/repository"
@@ -64,19 +65,27 @@ func (s *UserService) Update(ctx context.Context, id uint64, req *dto.UserUpdate
 	if exist {
 		return errors.New("用户名已存在")
 	}
-	var status uint8
-	if req.Status != nil {
-		status = *req.Status
-	}
+	// 构造要更新的用户实体（不包含 status），status 单独处理以支持设置为 0
 	u := entity.User{
 		ID:       id,
 		Username: req.Username,
 		Nickname: req.Nickname,
 		Email:    req.Email,
 		Phone:    req.Phone,
-		Status:   status,
 	}
-	return s.repo.Update(ctx, &u, id)
+
+	// 先更新普通字段（status 不在此处）
+	if err := s.repo.Update(ctx, &u, id); err != nil {
+		return err
+	}
+	fmt.Println(req.Status)
+	// 如果请求中包含 status，则单独调用 UpdateStatus（支持设置为 0）
+	if req.Status != nil {
+		if err := s.repo.UpdateStatus(ctx, id, *req.Status); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // UpdateStatus 开关账号

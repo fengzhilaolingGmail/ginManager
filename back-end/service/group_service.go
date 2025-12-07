@@ -52,7 +52,7 @@ func (s *GroupService) Create(ctx context.Context, req *dto.GroupAddReq) error {
 }
 
 // Update 编辑
-func (s *GroupService) Update(ctx context.Context, id uint64, req *dto.GroupAddReq) error {
+func (s *GroupService) Update(ctx context.Context, id uint64, req *dto.GroupUpdateReq) error {
 	exist, err := s.repo.ExistsCode(ctx, req.GroupCode, id)
 	if err != nil {
 		return err
@@ -60,15 +60,30 @@ func (s *GroupService) Update(ctx context.Context, id uint64, req *dto.GroupAddR
 	if exist {
 		return errors.New("组编码已存在")
 	}
+
+	// 构造更新实体（不包含 status），使用单独的 UpdateStatus 来处理可能的零值
 	g := entity.UserGroup{
-		ID:          id,
-		GroupCode:   req.GroupCode,
-		GroupName:   req.GroupName,
-		Sort:        req.Sort,
-		Status:      req.Status,
-		Description: req.Description,
+		ID:        id,
+		GroupCode: req.GroupCode,
+		GroupName: req.GroupName,
 	}
-	return s.repo.Update(ctx, &g, id)
+	if req.Sort != nil {
+		g.Sort = *req.Sort
+	}
+	if req.Description != nil {
+		g.Description = *req.Description
+	}
+
+	if err := s.repo.Update(ctx, &g, id); err != nil {
+		return err
+	}
+
+	if req.Status != nil {
+		if err := s.repo.UpdateStatus(ctx, id, *req.Status); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Delete 删除

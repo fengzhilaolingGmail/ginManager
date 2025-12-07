@@ -59,7 +59,7 @@ func (h *GroupHandler) Create(c *gin.Context) {
 // Update 编辑
 func (h *GroupHandler) Update(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	var req dto.GroupAddReq
+	var req dto.GroupUpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, dto.FailMsg("参数错误", err))
 		return

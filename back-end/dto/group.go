@@ -29,3 +29,11 @@ type GroupAddReq struct {
 	Status      uint8  `json:"status" binding:"oneof=0 1"`
 	Description string `json:"description"`
 }
+
+type GroupUpdateReq struct {
+	GroupCode   string  `json:"group_code" binding:"omitempty,max=50"`
+	GroupName   string  `json:"group_name" binding:"omitempty,max=50"`
+	Sort        *int    `json:"sort,omitempty"`
+	Status      *uint8  `json:"status,omitempty" binding:"omitempty,oneof=0 1"` // 指针以支持设置为0
+	Description *string `json:"description,omitempty"`
+}
