@@ -76,6 +76,27 @@ func (r *GroupRepo) Update(ctx context.Context, g *entity.UserGroup, id uint64) 
 	return db.Error
 }
 
+// UpdateStatus 切换状态
+func (r *GroupRepo) UpdateStatus(ctx context.Context, id uint64, status uint8) error {
+	// 禁止修改系统管理组状态
+	var g entity.UserGroup
+	if err := DB.WithContext(ctx).Select("id", "group_code").First(&g, id).Error; err != nil {
+		return err
+	}
+	if g.GroupCode == "sysadmin" {
+		return errors.New("系统内置管理组状态不能被更改")
+	}
+
+	db := DB.WithContext(ctx).
+		Model(&entity.UserGroup{}).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Update("status", status)
+	if db.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return db.Error
+}
+
 // Delete 删除（同步删除关联表）
 func (r *GroupRepo) Delete(ctx context.Context, id uint64) error {
 	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {

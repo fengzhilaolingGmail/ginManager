@@ -43,6 +43,7 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/group/list", middleware.NewAuthMiddleware("Group:view"), group.Page)
 	r.POST("/group/add", middleware.NewAuthMiddleware("Group:add"), group.Create)
 	r.PUT("/group/edit/:id", middleware.NewAuthMiddleware("Group:edit"), group.Update)
+	r.PUT("/group/status/:id/:status", middleware.NewAuthMiddleware("Group:edit"), group.UpdateStatus)
 	r.DELETE("/group/del/:id", middleware.NewAuthMiddleware("Group:del"), group.Delete)
 	r.GET("/group/:id", middleware.NewAuthMiddleware("Group:view"), group.Get)
 

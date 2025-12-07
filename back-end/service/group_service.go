@@ -75,6 +75,11 @@ func (s *GroupService) Delete(ctx context.Context, id uint64) error {
 	return s.repo.Delete(ctx, id)
 }
 
+// UpdateStatus 切换状态
+func (s *GroupService) UpdateStatus(ctx context.Context, id uint64, status uint8) error {
+	return s.repo.UpdateStatus(ctx, id, status)
+}
+
 // GetByID 单条
 func (s *GroupService) GetByID(ctx context.Context, id uint64) (*entity.UserGroup, error) {
 	return s.repo.GetByID(ctx, id)

@@ -354,35 +354,44 @@
             var checked = obj.elem.checked;
             var newStatus = checked ? 1 : 0;
 
-            layer.load(2);
+            // 参考 user.html 的交互：禁用开关，发送请求，成功则刷新表格，失败回滚并恢复开关
+            var $el = $el = $(obj.elem);
+            // 禁用开关，避免重复点击
+            $el.prop('disabled', true);
+
+            var statusUrl = (window.apiBase || '') + '/api/group/status/' + id + '/' + newStatus;
+            console.log('更新用户组状态请求 URL:', statusUrl, '请求 body:', { status: newStatus });
             $.ajax({
-                url: (window.apiBase || '') + '/api/group/status/' + id,
+                url: statusUrl,
                 method: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify({ status: newStatus }),
                 headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
                 success: function(res){
-                    layer.closeAll('loading');
+                    // 兼容不同后端返回格式
                     var ok = false;
                     if(!res) ok = false;
                     else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
                     else if(typeof res === 'boolean') ok = res;
 
                     if(ok){
-                        layer.msg('状态更新成功', {icon:1, time:800});
+                        var msg = newStatus === 1 ? '活跃中' : '已禁用';
+                        var icon = newStatus === 1 ? 1 : 2;
+                        layer.msg(msg, {icon: icon, time: 1000});
+                        // 刷新表格数据以保持一致
+                        try{ table.reload('currentTableId'); }catch(e){}
                     } else {
-                        layer.msg((res && res.msg) || '状态更新失败', {icon:2});
-                        // 失败时恢复开关状态
-                        obj.elem.checked = !checked;
-                        form.render('checkbox');
+                        layer.msg((res && res.msg) || '更新失败', {icon:2});
+                        // 回滚开关状态
+                        $el.prop('checked', !obj.elem.checked);
+                        form.render();
                     }
                 },
-                error: function(xhr){
-                    layer.closeAll('loading');
-                    layer.msg('请求失败：' + xhr.status, {icon:2});
-                    // 失败时恢复开关状态
-                    obj.elem.checked = !checked;
-                    form.render('checkbox');
+                error: function(){
+                    layer.msg('请求失败，请检查网络或后端接口', {icon:2});
+                    $el.prop('checked', !obj.elem.checked);
+                    form.render();
+                },
+                complete: function(){
+                    $el.prop('disabled', false);
                 }
             });
         });

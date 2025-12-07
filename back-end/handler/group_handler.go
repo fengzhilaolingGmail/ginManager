@@ -81,6 +81,17 @@ func (h *GroupHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Success(nil))
 }
 
+// UpdateStatus 切换组状态
+func (h *GroupHandler) UpdateStatus(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	status, _ := strconv.ParseUint(c.Param("status"), 10, 8)
+	if err := h.svc.UpdateStatus(c.Request.Context(), id, uint8(status)); err != nil {
+		c.JSON(http.StatusOK, dto.FailMsg(err.Error(), err))
+		return
+	}
+	c.JSON(http.StatusOK, dto.Success(nil))
+}
+
 // Get 单条
 func (h *GroupHandler) Get(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
