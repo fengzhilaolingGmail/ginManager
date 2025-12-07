@@ -46,6 +46,7 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	r.PUT("/group/status/:id/:status", middleware.NewAuthMiddleware("Group:edit"), group.UpdateStatus)
 	r.DELETE("/group/del/:id", middleware.NewAuthMiddleware("Group:del"), group.Delete)
 	r.GET("/group/:id", middleware.NewAuthMiddleware("Group:view"), group.Get)
+	r.GET("/group/:id/roles-perms", middleware.NewAuthMiddleware("Group:view"), group.RolesPerms)
 
 	// 菜单
 	menu := NewMenuHandler()

@@ -37,3 +37,18 @@ type GroupUpdateReq struct {
 	Status      *uint8  `json:"status,omitempty" binding:"omitempty,oneof=0 1"` // 指针以支持设置为0
 	Description *string `json:"description,omitempty"`
 }
+
+// Role/Permission node for tree response (avoid name clash with menu.PermNode)
+type PermItem struct {
+	ID       uint64 `json:"id"`
+	PermCode string `json:"perm_code"`
+	PermName string `json:"perm_name"`
+}
+
+type RoleItem struct {
+	ID       uint64     `json:"id"`
+	RoleCode string     `json:"role_code"`
+	RoleName string     `json:"role_name"`
+	Status   uint8      `json:"status"`
+	Children []PermItem `json:"children"`
+}

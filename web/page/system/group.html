@@ -81,9 +81,11 @@
             {{# if(d.DeletedAt && d.DeletedAt !== '' && d.DeletedAt !== '0000-00-00 00:00:00'){ }}
                 <a class="layui-btn layui-btn-normal layui-btn-xs layui-btn-disabled">编辑</a>
                 <a class="layui-btn layui-btn-xs layui-btn-disabled">删除</a>
+                <a class="layui-btn layui-btn-warm layui-btn-xs layui-btn-disabled">角色</a>
             {{# } else { }}
                 <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
                 <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+                <a class="layui-btn layui-btn-warm layui-btn-xs data-count-perm" lay-event="perm">角色</a>
             {{# } }}
         </script>
 
@@ -318,6 +320,21 @@
                     shadeClose: true,
                     area: ['800px', '560px'],
                     content: '../system/groups/edit_group.html?id=' + group.ID,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            } else if (obj.event === 'perm') {
+                var group = obj.data;
+                var index = layer.open({
+                    title: '<span class="layer-title-icon"><i class="fa fa-users"></i> 分配角色</span>',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: ['900px', '600px'],
+                    content: '../system/groups/role_assign_group.html?id=' + group.ID,
                 });
                 $(window).on("resize", function () {
                     layer.full(index);

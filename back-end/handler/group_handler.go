@@ -102,3 +102,14 @@ func (h *GroupHandler) Get(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, dto.Success(g))
 }
+
+// RolesPerms 查询组对应的角色与权限（树形）
+func (h *GroupHandler) RolesPerms(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	list, err := h.svc.GetRolesPermsByGroup(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusOK, dto.FailMsg("查询失败", err))
+		return
+	}
+	c.JSON(http.StatusOK, dto.Success(list))
+}

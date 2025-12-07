@@ -100,3 +100,26 @@ func (s *GroupService) UpdateStatus(ctx context.Context, id uint64, status uint8
 func (s *GroupService) GetByID(ctx context.Context, id uint64) (*entity.UserGroup, error) {
 	return s.repo.GetByID(ctx, id)
 }
+
+// GetRolesPermsByGroup 查询组下角色和角色对应权限并转换为前端树形结构
+func (s *GroupService) GetRolesPermsByGroup(ctx context.Context, groupID uint64) ([]dto.RoleItem, error) {
+	roleRepo := repository.NewRoleRepo()
+	items, err := roleRepo.GetRolesWithPermsByGroupID(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+	var out []dto.RoleItem
+	for _, it := range items {
+		ri := dto.RoleItem{
+			ID:       it.Role.ID,
+			RoleCode: it.Role.RoleCode,
+			RoleName: it.Role.RoleName,
+			Status:   it.Role.Status,
+		}
+		for _, p := range it.Permissions {
+			ri.Children = append(ri.Children, dto.PermItem{ID: p.ID, PermCode: p.PermCode, PermName: p.PermName})
+		}
+		out = append(out, ri)
+	}
+	return out, nil
+}

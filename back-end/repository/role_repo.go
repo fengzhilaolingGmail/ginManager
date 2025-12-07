@@ -11,6 +11,12 @@ type RoleRepo struct{}
 
 func NewRoleRepo() *RoleRepo { return &RoleRepo{} }
 
+// RoleWithPerms 用于返回角色及其权限
+type RoleWithPerms struct {
+	Role        entity.Role
+	Permissions []entity.Permission
+}
+
 // Page 分页
 func (r *RoleRepo) Page(ctx context.Context, name string, page, limit int) (list []entity.Role, total int64, err error) {
 	db := DB.WithContext(ctx).Model(&entity.Role{})
@@ -68,4 +74,31 @@ func (r *RoleRepo) ExistsCode(ctx context.Context, code string, excludeID uint64
 	err := DB.WithContext(ctx).Model(&entity.Role{}).
 		Where("role_code = ? AND id <> ?", code, excludeID).Count(&c).Error
 	return c > 0, err
+}
+
+// GetRolesWithPermsByGroupID 返回指定组的角色及每个角色对应的权限
+func (r *RoleRepo) GetRolesWithPermsByGroupID(ctx context.Context, groupID uint64) (list []RoleWithPerms, err error) {
+	// 先查询该组关联的角色
+	var roles []entity.Role
+	if err := DB.WithContext(ctx).
+		Model(&entity.Role{}).
+		Joins("join group_role_rels gr on gr.role_id = roles.id").
+		Where("gr.group_id = ?", groupID).
+		Find(&roles).Error; err != nil {
+		return nil, err
+	}
+
+	// 对每个角色查询权限
+	for _, role := range roles {
+		var perms []entity.Permission
+		if err := DB.WithContext(ctx).
+			Model(&entity.Permission{}).
+			Joins("join role_permission_rels rpr on rpr.perm_id = permissions.id").
+			Where("rpr.role_id = ?", role.ID).
+			Find(&perms).Error; err != nil {
+			return nil, err
+		}
+		list = append(list, RoleWithPerms{Role: role, Permissions: perms})
+	}
+	return list, nil
 }
