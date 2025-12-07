@@ -78,8 +78,13 @@
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
 
         <script type="text/html" id="currentTableBar">
-            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
-            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+            {{# if(d.DeletedAt && d.DeletedAt !== '' && d.DeletedAt !== '0000-00-00 00:00:00'){ }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs layui-btn-disabled">编辑</a>
+                <a class="layui-btn layui-btn-xs layui-btn-disabled">删除</a>
+            {{# } else { }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
+                <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+            {{# } }}
         </script>
 
     </div>
@@ -128,8 +133,13 @@
                 {field: 'Description', title: '描述', minWidth: 200},
                 // 状态：1 表示选中/活跃，0 表示未选中/禁用。显示为带颜色的 badge
                 {field: 'Status', width: 140, title: '状态', align: 'center', templet: function(d){
-                    // 使用 layui 开关（switch）显示状态，便于切换
+                    // 对已删除的用户组禁用开关，避免修改已删除条目的状态
                     var checked = (d.Status === 1 || d.Status === '1') ? 'checked' : '';
+                    var isDeleted = d.DeletedAt && d.DeletedAt !== '' && d.DeletedAt !== '0000-00-00 00:00:00';
+                    if(isDeleted){
+                        // 已删除条目用红色 Badge 显示，避免可交互控件
+                        return '<span class="layui-badge layui-bg-red">已删除</span>';
+                    }
                     // lay-filter 为 groupStatus，用于监听切换事件；data-id 保存用户组 ID
                     return '<input type="checkbox" name="statusSwitch" lay-skin="switch" lay-text="活跃|禁用" lay-filter="groupStatus" data-id="'+ d.ID +'" '+ checked +' />';
                 },sort: true},
