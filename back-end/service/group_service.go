@@ -41,10 +41,11 @@ func (s *GroupService) Create(ctx context.Context, req *dto.GroupAddReq) error {
 		return errors.New("组编码已存在")
 	}
 	g := entity.UserGroup{
-		GroupCode: req.GroupCode,
-		GroupName: req.GroupName,
-		Sort:      req.Sort,
-		Status:    req.Status,
+		GroupCode:   req.GroupCode,
+		GroupName:   req.GroupName,
+		Sort:        req.Sort,
+		Status:      req.Status,
+		Description: req.Description,
 	}
 	return s.repo.Create(ctx, &g)
 }
@@ -59,11 +60,12 @@ func (s *GroupService) Update(ctx context.Context, id uint64, req *dto.GroupAddR
 		return errors.New("组编码已存在")
 	}
 	g := entity.UserGroup{
-		ID:        id,
-		GroupCode: req.GroupCode,
-		GroupName: req.GroupName,
-		Sort:      req.Sort,
-		Status:    req.Status,
+		ID:          id,
+		GroupCode:   req.GroupCode,
+		GroupName:   req.GroupName,
+		Sort:        req.Sort,
+		Status:      req.Status,
+		Description: req.Description,
 	}
 	return s.repo.Update(ctx, &g, id)
 }

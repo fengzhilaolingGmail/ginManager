@@ -52,10 +52,11 @@ func InitFirstRun(db *gorm.DB) {
 
 		// 2. 创建「系统管理组」
 		grp := entity.UserGroup{
-			GroupCode: "sysadmin",
-			GroupName: "系统管理组",
-			Sort:      0,
-			Status:    1,
+			GroupCode:   "sysadmin",
+			GroupName:   "系统管理组",
+			Sort:        0,
+			Status:      1,
+			Description: "系统内置管理组",
 		}
 		if err := tx.Create(&grp).Error; err != nil {
 			return err

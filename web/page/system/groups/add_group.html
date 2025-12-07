@@ -108,16 +108,18 @@
         form.on('submit(saveGroupBtn)', function(data){
             var f = data.field;
             var status = (f.status === 'on' || f.status === 'true' || f.status === '1') ? 1 : 0;
+            // 按后端结构体的 json 标签组织请求体（snake_case）
             var payload = {
-                GroupCode: f.groupcode,
-                GroupName: f.groupname,
-                Sort: parseInt(f.sort) || 0,
-                Description: f.description || undefined,
-                Status: status
+                group_code: f.groupcode,
+                group_name: f.groupname,
+                sort: parseInt(f.sort) || 0,
+                description: f.description || undefined,
+                status: status
             };
 
             layer.load(2);
             $.ajax({
+                // 后端路由为 POST /group/add，若前端使用 api 前缀 window.apiBase（例如 '/api'），会被自动拼接
                 url: (window.apiBase || '') + '/api/group/add',
                 method: 'POST',
                 contentType: 'application/json',
