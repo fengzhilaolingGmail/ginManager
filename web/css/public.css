@@ -84,3 +84,8 @@ body {
 /* 弹窗标题内的图标文本样式（简洁版，不含黄色外框） */
 .layer-title-icon{ display:inline-flex; align-items:center; gap:8px; font-weight:600; color:#f56c6c; font-size:14px }
 .layer-title-icon .fa{ color:inherit; font-size:16px }
+
+/* Center LayUI table pagination across pages */
+.layui-table-page{display:flex;justify-content:center;align-items:center;padding:10px 0}
+.layui-table-page .layui-laypage{float:none}
+
