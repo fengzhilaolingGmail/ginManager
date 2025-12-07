@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户组管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../lib/layui-v2.13.2/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../css/public.css" media="all">
+    <link rel="stylesheet" href="../../lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户组名</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="groupname" autocomplete="off" class="layui-input" placeholder="用户组名">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">组名称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="group_name" autocomplete="off" class="layui-input" placeholder="组名称">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-inline">
+                                <select name="status">
+                                    <option value="3">全部</option>
+                                    <option value="1">活跃</option>
+                                    <option value="0">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">删除状态</label>
+                            <div class="layui-input-inline">
+                                <select name="deleted">
+                                    <option value="">全部</option>
+                                    <option value="0">使用中</option>
+                                    <option value="1">已删除</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">更新时间</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="updatedAtRange" autocomplete="off" class="layui-input" placeholder="选择更新时间范围">
+                                <input type="hidden" name="updated_start" id="updated_start">
+                                <input type="hidden" name="updated_end" id="updated_end">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                            <button type="button" class="layui-btn layui-btn-normal" id="reset-btn"><i class="layui-icon"></i> 重 置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="add"> 添加 </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 删除 </button>
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+        </script>
+
+    </div>
+</div>
+<script src="../../lib/layui-v2.13.2/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js" charset="utf-8"></script>
+<script src="../../js/common/utils.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'table', 'laydate'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            laydate = layui.laydate;
+
+        // formatDateTime 已提取到公共工具：../../js/common/utils.js
+
+        $.ajaxSetup({
+            beforeSend: function (xhr) {
+                // 本地缓存/cookie 里取，按你实际来
+                var token = localStorage.getItem('access_token') || '';
+                if (token) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                }
+            }
+        });
+
+        table.render({
+            elem: '#currentTableId',
+            url: (window.apiBase || '') + '/api/group/list?status=3',
+            page: true,
+            method: 'get',
+            limit: 10,
+            limits: [10, 20, 30, 50],
+            toolbar: '#toolbarDemo',
+            headers: {Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '')},
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                {type: "checkbox", width: 50},
+                {field: 'ID', width: 80, title: 'ID', sort: true},
+                {field: 'GroupName', width: 150, title: '用户组名'},
+                {field: 'GroupName', width: 150, title: '组名称'},
+                // {field: 'Description', title: '描述', minWidth: 200},
+                // 状态：1 表示选中/活跃，0 表示未选中/禁用。显示为带颜色的 badge
+                {field: 'Status', width: 140, title: '状态', align: 'center', templet: function(d){
+                    // 使用 layui 开关（switch）显示状态，便于切换
+                    var checked = (d.Status === 1 || d.Status === '1') ? 'checked' : '';
+                    // lay-filter 为 groupStatus，用于监听切换事件；data-id 保存用户组 ID
+                    return '<input type="checkbox" name="statusSwitch" lay-skin="switch" lay-text="活跃|禁用" lay-filter="groupStatus" data-id="'+ d.ID +'" '+ checked +' />';
+                },sort: true},
+                // 删除状态：如果 DeletedAt 有值则视为已删除（红色），否则使用中（绿色）
+                {field: 'DeletedAt', width: 140, title: '删除状态', sort: true, align: 'center', templet: function(d){
+                    var del = d.DeletedAt;
+                    if(del && del !== '' && del !== '0000-00-00 00:00:00'){
+                        return '<span class="layui-badge layui-bg-red">已删除</span>';
+                    } else {
+                        return '<span class="layui-badge layui-bg-green">使用中</span>';
+                    }
+                }},
+                {field: 'UpdatedAt', width: 280, title: '更新时间', templet: function(d){ return formatDateTime(d.UpdatedAt); }},
+                {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'line',
+            done: function(res, curr, count){
+                // 表格渲染完成后渲染 layui form 元素（使 switch 生效）
+                try { form.render(); } catch(e) {}
+            }
+        });
+
+        // 初始化更新时间范围选择器（带时间）
+        try{
+            laydate.render({
+                elem: '#updatedAtRange',
+                type: 'datetime',
+                range: true,
+                format: 'yyyy-MM-dd HH:mm:ss',
+                done: function(value, start, end){
+                    console.log('laydate done callback:', value, start, end);
+                    
+                    // 格式化日期并添加时区信息的函数
+                    function formatDateWithTimezone(dateStr) {
+                        if (!dateStr) return '';
+                        
+                        // 创建日期对象（注意：layui 的日期字符串格式是 yyyy-MM-dd HH:mm:ss）
+                        const date = new Date(dateStr.replace(' ', 'T'));
+                        
+                        // 获取时区偏移量（分钟，注意符号：getTimezoneOffset() 返回的是本地相对UTC的偏移，东八区返回-480）
+                        const timezoneOffset = date.getTimezoneOffset();
+                        
+                        // 转换为 +/-HH:mm 格式
+                        const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60);
+                        const offsetMinutes = Math.abs(timezoneOffset) % 60;
+                        const offsetSign = timezoneOffset <= 0 ? '+' : '-';
+                        
+                        const timezoneStr = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMinutes).padStart(2, '0')}`;
+                        
+                        // 格式化为 RFC3339 格式
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const hours = String(date.getHours()).padStart(2, '0');
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                        const seconds = String(date.getSeconds()).padStart(2, '0');
+                        
+                        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${timezoneStr}`;
+                    }
+                    
+                    if (value && value.includes(' - ')) {
+                        // 直接从 value 字符串解析日期范围
+                        const [startStr, endStr] = value.split(' - ');
+                        $('#updated_start').val(formatDateWithTimezone(startStr));
+                        $('#updated_end').val(formatDateWithTimezone(endStr));
+                        console.log('设置时间范围:', formatDateWithTimezone(startStr), formatDateWithTimezone(endStr));
+                    } else {
+                        $('#updated_start').val('');
+                        $('#updated_end').val('');
+                    }
+                }
+            });
+        }catch(e){
+            console.error('laydate 初始化失败:', e);
+        }
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var field = data.field;
+            console.log('表单数据:', field);
+
+            // 构造 where 条件
+            var where = {};
+
+            // 用户组名：模糊匹配
+            if(field.groupname) where.groupname = '%' + field.groupname + '%';
+            
+            // 显示名称：模糊匹配
+            if(field.display_name) where.display_name = '%' + field.display_name + '%';
+
+            // 删除状态：空值不提交
+            if(field.deleted !== '') where.deleted = parseInt(field.deleted, 10);
+
+            // 时间范围：隐藏域已格式化为 RFC3339
+            if(field.updated_start) where.updated_start = field.updated_start;
+            if(field.updated_end) where.updated_end = field.updated_end;
+
+            console.log('Where条件:', where); // 调试日志
+
+            // 把 status 拼到 url 参数，其余放 where
+            var statusQ = field.status !== '' ? parseInt(field.status, 10) : '';
+            var url = (window.apiBase || '') + '/api/group/list' + (statusQ !== '' ? '?status=' + statusQ : '');
+
+            console.log('请求URL:', url); // 调试日志
+            console.log('Where参数:', where); // 调试日志
+
+            //执行搜索重载
+            table.reload('currentTableId', {
+                page: { curr: 1 },
+                url: url,
+                where: where
+            }, 'data');
+
+            return false;
+        });
+
+        // 重置按钮事件
+        $('#reset-btn').on('click', function(){
+            // 清空表单字段
+            $('input[name="groupname"], input[name="display_name"], input[name="updated_start"], input[name="updated_end"]').val('');
+            $('select[name="status"], select[name="deleted"]').val('');
+
+            // 重新渲染表单
+            form.render();
+
+            // 重载表格，恢复默认状态（status=3）
+            table.reload('currentTableId', {
+                page: { curr: 1 },
+                url: (window.apiBase || '') + '/api/group/list?status=3',
+                where: {}
+            }, 'data');
+        });
+
+        /**
+         * toolbar监听事件
+         */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+                if (obj.event === 'add') {  // 监听添加操作
+                var index = layer.open({
+                    title: '<span class="layer-title-icon"><i class="fa fa-users"></i> 添加用户组</span>',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: ['800px', '560px'],
+                    content: '../system/groups/add_group.html',
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'delete') {  // TODO 监听删除操作 未实现
+                var checkStatus = table.checkStatus('currentTableId')
+                    , data = checkStatus.data;
+                layer.alert("未实现批量删除功能");
+            }
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            console.log(obj)
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                var group = obj.data;
+                var index = layer.open({
+                    title: '<span class="layer-title-icon"><i class="fa fa-edit"></i> 编辑用户组</span>',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: ['800px', '560px'],
+                    content: '../system/groups/edit_group.html?id=' + group.ID,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            } else if (obj.event === 'delete') {
+                var group = obj.data;
+                var tip = '确定要删除用户组【' + (group.GroupName || '') + ' / ' + (group.DisplayName || '') + '】吗？';
+                layer.confirm(tip, {icon:3, title:'删除确认'}, function(idx){
+                    layer.load(2);
+                    $.ajax({
+                        url: (window.apiBase || '') + '/api/group/del/' + group.ID,
+                        method: 'DELETE',
+                        headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                        success: function(res){
+                            layer.closeAll('loading');
+                            var ok = false;
+                            if(!res) ok = false;
+                            else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
+                            else if(typeof res === 'boolean') ok = res;
+
+                            if(ok){
+                                // 刷新当前页，后端返回最新 DeletedAt 会自动渲染成红色"已删除"
+                                table.reload('currentTableId');
+                                layer.msg('删除成功', {icon:1, time:1000});
+                            } else {
+                                layer.msg((res && res.msg) || '删除失败', {icon:2});
+                            }
+                        },
+                        error: function(xhr){
+                            layer.closeAll('loading');
+                            layer.msg('请求失败：' + xhr.status, {icon:2});
+                        }
+                    });
+                    layer.close(idx);
+                });
+                return false;
+            }
+        });
+
+        // 监听状态开关切换（lay-filter="groupStatus"）
+        form.on('switch(groupStatus)', function(obj){
+            var $el = $(obj.elem);
+            var id = $el.data('id');
+            var checked = obj.elem.checked;
+            var newStatus = checked ? 1 : 0;
+
+            layer.load(2);
+            $.ajax({
+                url: (window.apiBase || '') + '/api/group/status/' + id,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({ status: newStatus }),
+                headers: { Authorization: 'Bearer ' + (localStorage.getItem('access_token') || '') },
+                success: function(res){
+                    layer.closeAll('loading');
+                    var ok = false;
+                    if(!res) ok = false;
+                    else if(res.code === 0 || res.success === true || res.status === 'ok') ok = true;
+                    else if(typeof res === 'boolean') ok = res;
+
+                    if(ok){
+                        layer.msg('状态更新成功', {icon:1, time:800});
+                    } else {
+                        layer.msg((res && res.msg) || '状态更新失败', {icon:2});
+                        // 失败时恢复开关状态
+                        obj.elem.checked = !checked;
+                        form.render('checkbox');
+                    }
+                },
+                error: function(xhr){
+                    layer.closeAll('loading');
+                    layer.msg('请求失败：' + xhr.status, {icon:2});
+                    // 失败时恢复开关状态
+                    obj.elem.checked = !checked;
+                    form.render('checkbox');
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>
